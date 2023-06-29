@@ -122,7 +122,7 @@ class Utility(commands.Cog):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		reminders = await self.bot.db.fetch('SELECT * FROM reminder ORDER BY time ASC')
-		print(f"Utility Cog Loaded")
+		print("Utility Cog Loaded")
 
 		for reminder in reminders:
 			_id = reminder['id']
@@ -342,12 +342,12 @@ class Utility(commands.Cog):
 	@commands.cooldown(1, 3, commands.BucketType.user)
 	async def deletes(self, ctx, index:int=None):
 		"""Delete a task from you todo with given index"""
-		author_id = ctx.author.id
-
 		if not index:
 			await ctx.reply("Missing index of the task you want to remove.", mention_author=False, delete_after=15)
 			ctx.command.reset_cooldown(ctx)
 		else:
+			author_id = ctx.author.id
+
 			tasks = await self.bot.db.fetchrow("SELECT tasks FROM todo WHERE user_id = $1", author_id)
 			if not tasks or not tasks[0]:
 				await ctx.reply(embed=discord.Embed(title="You don't have any task.", color=self.bot.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url), mention_author=False)
@@ -357,7 +357,14 @@ class Utility(commands.Cog):
 				deleted_el = tasks[index-1]
 				del tasks[index-1]
 				await self.bot.db.execute("UPDATE todo SET tasks = $1 WHERE user_id = $2", tasks, author_id)
-				await ctx.reply(embed=discord.Embed(title=f"Successfully deleted a task from your todo list", description=f"```c\n[{index}] {deleted_el} ```", color=self.bot.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url), mention_author=False)
+				await ctx.reply(
+					embed=discord.Embed(
+						title="Successfully deleted a task from your todo list",
+						description=f"```c\n[{index}] {deleted_el} ```",
+						color=self.bot.c,
+					).set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url),
+					mention_author=False,
+				)
 
 	@todo.command(cooldown_after_parsing=True, name="list")
 	@commands.cooldown(1, 5, commands.BucketType.user)
@@ -367,7 +374,7 @@ class Utility(commands.Cog):
 
 		tasks = await self.bot.db.fetchrow("SELECT tasks FROM todo WHERE user_id = $1", author_id)
 		prioritized = await self.bot.db.fetchrow("SELECT prioritized FROM todo WHERE user_id = $1", author_id)
-		
+
 		if (not tasks or not tasks[0]) and (not prioritized or not prioritized[0]):
 			await ctx.reply(embed=discord.Embed(title="You don't have any task.", color=self.bot.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url), mention_author=False)
 			ctx.command.reset_cooldown(ctx)
@@ -382,9 +389,7 @@ class Utility(commands.Cog):
 						count += 1
 						_list.append([])
 
-				for pge in _list:
-					text.append("```c\n{} ```".format("\n".join(pge)))
-
+				text.extend("```c\n{} ```".format("\n".join(pge)) for pge in _list)
 			elif not tasks or not tasks[0]:
 				text.append("")
 				text[0] = f"**```c\n[PRIORITIZED] {prioritized[0]} ```**"
@@ -395,9 +400,12 @@ class Utility(commands.Cog):
 						count += 1
 						_list.append([])
 
-				for pge in _list:
-					text.append("**```c\n[PRIORITIZED] {}```** ```r\n{} ```".format(prioritized[0], "\n".join(pge)))
-
+				text.extend(
+					"**```c\n[PRIORITIZED] {}```** ```r\n{} ```".format(
+						prioritized[0], "\n".join(pge)
+					)
+					for pge in _list
+				)
 			embeds = []
 			for page in text:
 				embed = discord.Embed(title="Your task(s):", color=self.bot.c, description=page)
@@ -406,18 +414,18 @@ class Utility(commands.Cog):
 
 			if len(embeds) == 1:
 				return await ctx.reply(embed=embeds[0], mention_author=False)
-			
+
 			await ctx.Paginator().send(embeds, reply=True)
 
 	@todo.command(cooldown_after_parsing=True, usage="[first index] [second index]")
 	@commands.cooldown(1, 3, commands.BucketType.user)
 	async def swap(self, ctx, i_1:int=None, i_2:int=None):
 		"""Swap todo index"""
-		author_id = ctx.author.id
 		if not i_1 or not i_2:
 			await ctx.reply("Missing index you want to swap.", mention_author=False, delete_after=15)
 			ctx.command.reset_cooldown(ctx)
 		else:
+			author_id = ctx.author.id
 			tasks = await self.bot.db.fetchrow("SELECT tasks FROM todo WHERE user_id = $1", author_id)
 
 			if not tasks or not tasks[0]:
@@ -434,12 +442,12 @@ class Utility(commands.Cog):
 	@commands.cooldown(1, 3, commands.BucketType.user)
 	async def prioritize(self, ctx, index:int=None):
 		"""Prioritize a task"""
-		author_id = ctx.author.id
-
 		if not index:
 			await ctx.reply("Missing index you want to prioritize.", mention_author=False, delete_after=15)
 			ctx.command.reset_cooldown(ctx)
 		else:
+			author_id = ctx.author.id
+
 			tasks = await self.bot.db.fetchrow("SELECT tasks FROM todo WHERE user_id = $1", author_id)
 
 			if not tasks or not tasks[0]:
@@ -616,8 +624,13 @@ class Utility(commands.Cog):
 				await ctx.reply(source, mention_author=False)
 			else:
 				
-				embeds = []
-				embeds.append(discord.Embed(title=f"From {source.capitalize()}", description=f"```\n{text}```", color=self.bot.c).set_author(name=ctx.author, icon_url=ctx.author.display_avatar.url))
+				embeds = [
+					discord.Embed(
+						title=f"From {source.capitalize()}",
+						description=f"```\n{text}```",
+						color=self.bot.c,
+					).set_author(name=ctx.author, icon_url=ctx.author.display_avatar.url)
+				]
 				embeds.append(discord.Embed(title=f"To {destination.capitalize()}", description=f"```\n{translated}```", color=self.bot.c))
 
 				await ctx.reply(embeds=embeds, mention_author=False)
@@ -781,8 +794,8 @@ class Utility(commands.Cog):
 
 		for i in range(1, 7):
 			for j in range(1, 7):
-				c = 0
 				if board[i][j] == 0:
+					c = 0
 					if board[i-1][j-1] == 9:
 						c += 1
 					if board[i-1][j] == 9:
@@ -828,7 +841,7 @@ class Utility(commands.Cog):
 					text[i-1].append(f"||{all_nums[8]}\U0000fe0f\U000020e3||")
 				elif board[i][j] == 9:
 					text[i-1].append("||\U0001f4a3||")
-		
+
 		text.insert(0, ['\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8'])
 		text.append(['\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8', '\U0001f7e8'])
 		for i in range(1, 7):
@@ -1005,7 +1018,7 @@ class Utility(commands.Cog):
 	async def afk(self, ctx, *, reason=None):
 		"""Set your status to AFK"""
 		reason = reason or "Not specified"
-		reason = reason if len(reason) < 500 else reason[:500] + "..."
+		reason = reason if len(reason) < 500 else f"{reason[:500]}..."
 
 		await self.bot.db.execute("INSERT INTO afk (user_id, reason, since) VALUES ($1, $2, $3)", ctx.author.id, reason, dt.datetime.utcnow())
 
@@ -1034,8 +1047,8 @@ class Utility(commands.Cog):
 		if not url.startswith('http'):
 			return await ctx.reply('Please include `http://` or `https://`.', mention_author=False)
 
-		delay = 0 if delay < 0 else delay
-		delay = 10 if delay > 10 else delay
+		delay = max(delay, 0)
+		delay = min(delay, 10)
 
 		async with ctx.typing(), get_session(service, browser) as session:
 			await session.set_window_size(1400, 1000)
@@ -1087,7 +1100,9 @@ class Utility(commands.Cog):
 				text = await row.get_text()
 				if text.startswith('Cari kata kunci'):
 					break
-				label, desc = map(lambda t: t[:95] + '...' if len(t) > 100 else t, text.split('\n'))
+				label, desc = map(
+					lambda t: f'{t[:95]}...' if len(t) > 100 else t, text.split('\n')
+				)
 				dosen_mapping.append([label, desc, link])
 
 			mahasiswa_rows = await tables[3].get_elements('tr')
@@ -1097,7 +1112,9 @@ class Utility(commands.Cog):
 				text = await row.get_text()
 				if text.startswith('Cari kata kunci'):
 					break
-				label, desc = map(lambda t: t[:95] + '...' if len(t) > 100 else t, text.split('\n'))
+				label, desc = map(
+					lambda t: f'{t[:95]}...' if len(t) > 100 else t, text.split('\n')
+				)
 				mahasiswa_mapping.append([label, desc, link])
 
 			if not dosen_mapping and not mahasiswa_mapping:
@@ -1122,7 +1139,7 @@ class Utility(commands.Cog):
 						await self.msg.edit(view=self)
 					except:
 						...
-					
+
 			view = View(timeout=None)
 			view.add_item(menu_dosen)
 			view.add_item(menu_mahasiswa)
@@ -1135,18 +1152,20 @@ class Utility(commands.Cog):
 		"""Urban dictionary lookup"""
 
 		url = 'http://api.urbandictionary.com/v0/define'
-		
+
 		r = await ctx.session.get(url, params={'term': term})
 		js = await r.json()
 		results = js.get('list', [])
-		
+
 		if not results:
 			return await ctx.reply('No definition found.')
 
 		embeds = []
 		for result in results:
 			definition = result['definition'].replace('[', '').replace(']', '')
-			definition = definition if len(definition) < 2000 else definition[:2000] + '...'
+			definition = (
+				definition if len(definition) < 2000 else f'{definition[:2000]}...'
+			)
 
 			embed = discord.Embed(title=f'Term: {result["word"]}', url=result['permalink'], description=definition+'\n\u200b', timestamp=dt.datetime.now(), color=self.bot.c)
 			embed.add_field(name='Votes', value=f'<:upvote:596577438461591562> {result["thumbs_up"]} | <:downvote:596577438952062977> {result["thumbs_down"]}', inline=True)

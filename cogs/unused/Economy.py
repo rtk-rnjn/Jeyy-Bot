@@ -172,7 +172,7 @@ class Economy(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"Economy Cog Loaded")
+		print("Economy Cog Loaded")
 
 	async def cog_check(self, ctx):
 		return await self.bot.is_owner(ctx.author)

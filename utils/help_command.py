@@ -17,9 +17,8 @@ class JeyyHelp(commands.MinimalHelpCommand):
 
 	async def send_command_help(self, command):
 		ctx = self.get_context()
-			
-		aliases = command.aliases
-		if aliases:
+
+		if aliases := command.aliases:
 			aliases = [f"`{alias}`" for alias in aliases]
 			embed = discord.Embed(title=f"{self.get_command_signature(command)}", description=f"**Alias{['es', ''][len(aliases) == 1]}: **"+", ".join(aliases), color=ctx.bot.c)
 		else:
@@ -37,8 +36,7 @@ class JeyyHelp(commands.MinimalHelpCommand):
 			await cmd(ctx)
 			return
 
-		aliases = command.aliases
-		if aliases:
+		if aliases := command.aliases:
 			aliases = [f"`{alias}`" for alias in aliases]
 			embed = discord.Embed(title=f"{self.get_command_signature(command)}", description="**Aliases: **"+", ".join(aliases), color=ctx.bot.c)
 		else:

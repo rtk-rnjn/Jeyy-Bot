@@ -74,20 +74,26 @@ class Fun(commands.Cog):
 		self.bot.chars = letters
 		self.bot.iso_codes = codes
 		self.block_codes = "```\n- 0 = blank block\t- g = Gold Block\n" + \
-			"- 1 = Grass Block\t- p = Purple Block\n" + \
-			"- 2 = Water\t\t  - l = Leaf Block\n" + \
-			"- 3 = Sand Block\t - o = Log Block\n" + \
-			"- 4 = Stone block\t- c = Coal Block\n" + \
-			"- 5 = Wood Planks\t- d = Diamond Block\n" + \
-			"- 6 = Glass Block\t- v = Lava\n" + \
-			"- 7 = Redstone Block - h = Hay Bale\n" + \
-			"- 8 = Iron Block 	- s = Snow Layer\n" + \
-			"- 9 = Brick Block\t- f = Wooden Fence\n" + \
-			"- w = Redstone Dust  - r = Redstone Lamp\n" + \
-			"- e = Lever (off)\t- # = Lever (on)\n" + \
-			"- k = Cake\t\t   - y = Poppy```"
+				"- 1 = Grass Block\t- p = Purple Block\n" + \
+				"- 2 = Water\t\t  - l = Leaf Block\n" + \
+				"- 3 = Sand Block\t - o = Log Block\n" + \
+				"- 4 = Stone block\t- c = Coal Block\n" + \
+				"- 5 = Wood Planks\t- d = Diamond Block\n" + \
+				"- 6 = Glass Block\t- v = Lava\n" + \
+				"- 7 = Redstone Block - h = Hay Bale\n" + \
+				"- 8 = Iron Block 	- s = Snow Layer\n" + \
+				"- 9 = Brick Block\t- f = Wooden Fence\n" + \
+				"- w = Redstone Dust  - r = Redstone Lamp\n" + \
+				"- e = Lever (off)\t- # = Lever (on)\n" + \
+				"- k = Cake\t\t   - y = Poppy```"
 		self.checker = enchant.Dict('en_US')
-		self.words = list(set([w for w in open('./image/5words.txt', 'r').read().lower().splitlines() if self.checker.check(w)]))
+		self.words = list(
+			{
+				w
+				for w in open('./image/5words.txt', 'r').read().lower().splitlines()
+				if self.checker.check(w)
+			}
+		)
 		with open('./image/quotes.json') as f:
 			self.quotes = json.load(f)['quotes']
 
@@ -194,7 +200,7 @@ class Fun(commands.Cog):
 			if not blocks:
 				await ctx.send_help("isometric")
 				return ctx.command.reset_cooldown(ctx)
-			
+
 			start = time.perf_counter()
 			try:
 				lever_exist, is_gif, blocks = self.parse_isometric(blocks)
@@ -216,7 +222,7 @@ class Fun(commands.Cog):
 
 					end = time.perf_counter()
 					timed = end - start
-					timed_s = si_format(timed, 4) + 's'
+					timed_s = f'{si_format(timed, 4)}s'
 
 					return await ctx.reply(f"`finished in {timed_s}::rendered {c} block{['', 's'][c > 1]}`\n\u200b", file=discord.File(buf, "auto_lever.gif"))
 
@@ -228,16 +234,16 @@ class Fun(commands.Cog):
 
 				end = time.perf_counter()
 				timed = end - start
-				timed_s = si_format(timed, 4) + 's'
+				timed_s = f'{si_format(timed, 4)}s'
 
 				return await Switch(ctx).switch(file_1, file_2, f"`finished in {timed_s}::rendered {c} block{['', 's'][c > 1]}`\n\u200b")
-			
+
 			try:
 				if is_gif:
 					buf, c = await isometric_gif_func(blocks)
 				else:
 					buf, c = await isometric_func(blocks)
-					
+
 				if c > 4000:
 					return await ctx.reply("Block count reached more than 4000.")
 
@@ -247,7 +253,7 @@ class Fun(commands.Cog):
 
 			end = time.perf_counter()
 			timed = end - start
-			timed_s = si_format(timed, 4) + 's'
+			timed_s = f'{si_format(timed, 4)}s'
 
 			return await ctx.reply(f"`finished in {timed_s}::rendered {c} block{['', 's'][c > 1]}`\n\u200b", file=discord.File(buf, "isometric.gif"))
 
@@ -390,7 +396,7 @@ class Fun(commands.Cog):
 		output = output.replace('1', block[0])
 
 		cmd = self.bot.get_command("isometric")
-		await cmd(ctx, blocks='0 '+output + ['', ' gif'][gif])
+		await cmd(ctx, blocks=f'0 {output}' + ['', ' gif'][gif])
 
 	@texttoiso.command(name="code", cooldown_after_parsing=True)
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -436,7 +442,7 @@ class Fun(commands.Cog):
 			buf, c = await isometric_func(blocks)
 			end = time.perf_counter()
 			timed = end - start
-			timed_s = si_format(timed, 4) + 's'
+			timed_s = f'{si_format(timed, 4)}s'
 
 			return await ctx.reply(f"`finished in {timed_s}::rendered {c} block{['', 's'][c > 1]}`\n\u200b", file=discord.File(buf, "isometric.png"))
 
@@ -481,14 +487,12 @@ class Fun(commands.Cog):
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds")
 			all_builds = [build["build_name"] for build in all_builds]
 
-			close_matches = get_close_matches(build_name, all_builds, 10)
-
-			if not close_matches:
-				await ctx.reply("No builds found.", mention_author=False)
-			else:
+			if close_matches := get_close_matches(build_name, all_builds, 10):
 				text = "Build not found. Did you mean...\n" + "\n".join([f"{i+1}. {name}" for i, name in enumerate(close_matches)])
 				await ctx.reply(text, mention_author=False)
 
+			else:
+				await ctx.reply("No builds found.", mention_author=False)
 			return
 
 		await BuildView(ctx, build_search).start()
@@ -515,7 +519,7 @@ class Fun(commands.Cog):
 		if any(l not in codeses for l in code):
 			noo = ", ".join([f"`{i}`" for i in code if i not in codeses])
 			return await ctx.reply(f"Your build has a code that i don't recognize. {noo}", mention_author=False)
-		
+
 		if not set(code).intersection(set(codes)):
 			return await ctx.reply("Your build has no blocks.", mention_author=False)
 
@@ -527,7 +531,7 @@ class Fun(commands.Cog):
 				raise e
 			if not blocks:
 				ctx.command.reset_cooldown(ctx)
-				return await ctx.reply(f"Invalid multiply expression.", mention_author=False)
+				return await ctx.reply("Invalid multiply expression.", mention_author=False)
 
 			if len(blocks) > 4000:
 				return await ctx.send('Block count reached more than 4000.')
@@ -535,7 +539,7 @@ class Fun(commands.Cog):
 		code = code.lower().strip()
 		build_name = build_name.replace("\u2800", "").replace("\u200b", "").replace("\uFEFF", "").strip(" ")
 
-		
+
 		build_search = await self.bot.db.fetch("SELECT * FROM builds WHERE LOWER(build_name) = $1", build_name.lower())
 
 		if build_search:
@@ -606,7 +610,7 @@ class Fun(commands.Cog):
 		if any(l not in codeses for l in code):
 			noo = ", ".join([f"`{i}`" for i in code if i not in codeses])
 			return await ctx.reply(f"Your build has a code that i don't recognize. {noo}", mention_author=False)
-		
+
 		if not set(code).intersection(set(codes)):
 			return await ctx.reply("Your build has no blocks.", mention_author=False)
 
@@ -618,7 +622,7 @@ class Fun(commands.Cog):
 				raise e
 			if not blocks:
 				ctx.command.reset_cooldown(ctx)
-				return await ctx.reply(f"Invalid multiply expression.", mention_author=False)
+				return await ctx.reply("Invalid multiply expression.", mention_author=False)
 
 			if len(blocks) > 4000:
 				return await ctx.send('Block count reached more than 4000.')
@@ -657,14 +661,12 @@ class Fun(commands.Cog):
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds")
 			all_builds = [build["build_name"] for build in all_builds]
 
-			close_matches = get_close_matches(build_name, all_builds, 10)
-
-			if not close_matches:
-				await ctx.reply("No builds found.", mention_author=False)
-			else:
+			if close_matches := get_close_matches(build_name, all_builds, 10):
 				text = "Build not found. Did you mean...\n" + "\n".join([f"{i+1}. {name}" for i, name in enumerate(close_matches)])
 				await ctx.reply(text, mention_author=False)
 
+			else:
+				await ctx.reply("No builds found.", mention_author=False)
 			ctx.command.reset_cooldown(ctx)
 			return
 
@@ -685,14 +687,12 @@ class Fun(commands.Cog):
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds")
 			all_builds = [build["build_name"] for build in all_builds]
 
-			close_matches = get_close_matches(build_name, all_builds, 10)
-
-			if not close_matches:
-				await ctx.reply("No builds found.", mention_author=False)
-			else:
+			if close_matches := get_close_matches(build_name, all_builds, 10):
 				text = "Build not found. Did you mean...\n" + "\n".join([f"{i+1}. {name}" for i, name in enumerate(close_matches)])
 				await ctx.reply(text, mention_author=False)
 
+			else:
+				await ctx.reply("No builds found.", mention_author=False)
 			ctx.command.reset_cooldown(ctx)
 			return
 
@@ -709,13 +709,11 @@ class Fun(commands.Cog):
 		all_builds = await self.bot.db.fetch("SELECT build_name FROM builds")
 		all_builds = [build["build_name"] for build in all_builds]
 
-		close_matches = get_close_matches(build_name, all_builds, 10)
-
-		if not close_matches:
-			await ctx.reply("No builds found.", mention_author=False)
-		else:
+		if close_matches := get_close_matches(build_name, all_builds, 10):
 			text = "\n".join([f"{i+1}. {name}" for i, name in enumerate(close_matches)])
 			await ctx.reply(text, mention_author=False)
+		else:
+			await ctx.reply("No builds found.", mention_author=False)
 
 	@build.command(cooldown_after_parsing=True, usage="<order=default(name)>")
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -723,18 +721,18 @@ class Fun(commands.Cog):
 		"""See all builds saved
 		Orders : `name`, `uses`, `stars`, and `date`
 		"""
-		if order.lower() in ["name", "build name"]:
+		if order.lower() in {"name", "build name"}:
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds ORDER BY build_name ASC")
-		elif order.lower() in ["use", "usage", "uses"]:
+		elif order.lower() in {"use", "usage", "uses"}:
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds ORDER BY uses DESC")
-		elif order.lower() in ["star", "stars"]:
+		elif order.lower() in {"star", "stars"}:
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds ORDER BY stars DESC")
 		elif order.lower() == "date":
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds ORDER BY date ASC")
 		else:
 			order = "name"
 			all_builds = await self.bot.db.fetch("SELECT build_name FROM builds ORDER BY build_name ASC")
-			
+
 		all_builds = [build["build_name"] for build in all_builds]
 
 		lines = [f"{i+1}. {name}" for i, name in enumerate(all_builds)]
@@ -1080,7 +1078,7 @@ class Fun(commands.Cog):
 
 		if side and not text:
 			return await ctx.reply('Please send the text', mention_author=False)
-		if side and text:
+		if side:
 			if len(text) > 240:
 				return await ctx.reply('Text length must be under 240 characters!', mention_author=False)
 			if side.lower() not in ['a', 'attorney', 'p', 'prosecutor']:
@@ -1093,7 +1091,7 @@ class Fun(commands.Cog):
 				if (bsize := buf.getbuffer().nbytes) > file_limit:
 					return await ctx.reply(f'Resulting gif size: `{humanize.naturalsize(bsize)}` is bigger than this guild file size limit: `{humanize.naturalsize(file_limit)}`. Please lessen the text to make its size smaller.', mention_author=False)
 				return await ctx.reply(file=discord.File(buf, 'ace.gif'), mention_author=False)
-			
+
 		class View(discord.ui.View):
 			def __init__(self):
 				super().__init__()
@@ -1166,7 +1164,7 @@ class Fun(commands.Cog):
 			@discord.ui.button(label='Prosecutor', style=discord.ButtonStyle.red)
 			async def prosecutor(self, interaction: discord.Interaction, button: discord.Button):
 				modal = AceModal(ctx, 'Prosecutor Dialogue')
-				
+
 				await interaction.response.send_modal(modal)
 				await modal.wait()
 
@@ -1190,7 +1188,7 @@ class Fun(commands.Cog):
 				if (bsize := buf.getbuffer().nbytes) > file_limit:
 					# return await interaction.followup.send(f'Resulting gif size: `{humanize.naturalsize(bsize)}` is bigger than this guild file size limit: `{humanize.naturalsize(file_limit)}`. Please lessen the text to make its size smaller.')
 					return await ctx.reply(f'Resulting gif size: `{humanize.naturalsize(bsize)}` is bigger than this guild file size limit: `{humanize.naturalsize(file_limit)}`. Please lessen the text to make its size smaller.')
-				
+
 				await ctx.reply(file=discord.File(buf, 'prosecutor.gif'))
 				# await interaction.followup.send(file=discord.File(buf, 'prosecutor.gif'))
 
@@ -1215,7 +1213,7 @@ class Fun(commands.Cog):
 				# if (bsize := buf.getbuffer().nbytes) > file_limit:
 				# 	return await ctx.reply(f'Resulting gif size: `{humanize.naturalsize(bsize)}` is bigger than this guild file size limit: `{humanize.naturalsize(file_limit)}`. Please lessen the text to make its size smaller.', mention_author=False)
 				# await ctx.reply(file=discord.File(buf, 'prosecutor.gif'), mention_author=False)
-		
+
 		view = View()
 		view.msg = await ctx.reply('Choose side', view=view, mention_author=False)
 

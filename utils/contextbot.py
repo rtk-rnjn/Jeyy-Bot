@@ -101,7 +101,7 @@ class JeyyContext(commands.Context):
 			return await ToImage().convert(self, image.url)
 		elif (ref := self.message.reference) and (content := ref.resolved.content) and _input is None:
 			return await ToImage().convert(self, content)
-	
+
 		if (stickers := self.message.stickers) and stickers[0].format != discord.StickerFormatType.lottie:
 			response = await self.bot.session.get(self.message.stickers[0].url)
 			buf = BytesIO(await response.read())
@@ -124,8 +124,8 @@ class JeyyContext(commands.Context):
 			if not url:
 				url = await emoji_to_url(_input)
 				url = re.findall(url_regex, url)
-				if not url:
-					raise ConversionError("Could not convert input to Emoji, Member, or Image URL")
+			if not url:
+				raise ConversionError("Could not convert input to Emoji, Member, or Image URL")
 
 			url = url[0]
 
@@ -135,11 +135,9 @@ class JeyyContext(commands.Context):
 				url_tenor = await self.scrape_tenor(html)
 				resp = await self.bot.session.get(url_tenor)
 				_input = BytesIO(await resp.read())
-				_input.seek(0)
-
 			else:
 				_input = BytesIO(await response.read())
-				_input.seek(0)
+			_input.seek(0)
 
 		return self.check_buffer(_input)
 
@@ -198,15 +196,10 @@ class JeyyContext(commands.Context):
 
 		soup = BeautifulSoup(html, features='html.parser')
 		find = soup.find('div', {'class': 'Gif'})
-		url = find.img['src']
-
-		return url
+		return find.img['src']
 
 	def get_ref(self, default=None):
-		if self.message.reference:
-			return self.message.reference.resolved
-		
-		return default
+		return self.message.reference.resolved if self.message.reference else default
 
 class JeyyBot(commands.Bot):
 	def __init__(self, *args, **kwargs):
@@ -264,11 +257,10 @@ class JeyyBot(commands.Bot):
 			data={'bytes': bytes, 'content_type': content_type, 'name': name}
 		)
 
-		if r.status == 200:
-			json = await r.json()
-			return json['url']
-		else:
+		if r.status != 200:
 			raise HTTPUploadError(f'Upload raises {r.status} HTTP exception: {await r.text()}')
+		json = await r.json()
+		return json['url']
 	
 	async def upload_url(self, url, content_type, name=''):
 		
@@ -278,10 +270,9 @@ class JeyyBot(commands.Bot):
 			data={'url': url, 'content_type': content_type, 'name': name}
 		)
 
-		if r.status == 200:
-			json = await r.json()
-			return json['url']
-		else:
+		if r.status != 200:
 			raise HTTPUploadError(f'Upload raises {r.status} HTTP exception: {await r.text()}')
+		json = await r.json()
+		return json['url']
 
 

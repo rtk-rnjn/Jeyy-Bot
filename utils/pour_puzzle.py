@@ -12,12 +12,9 @@ class Bottle:
 	async def pour(self, onto):
 		top = self.liquids[-1]
 		for liquid in reversed(self.liquids):
-			if liquid.color == top.color:
-				if not onto.is_full():
-					onto.liquids.append(top)
-					self.liquids.pop()
-				else:
-					break
+			if liquid.color == top.color and not onto.is_full():
+				onto.liquids.append(top)
+				self.liquids.pop()
 			else:
 				break
 

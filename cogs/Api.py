@@ -41,7 +41,7 @@ class Api(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"Api Cog Loaded")
+		print("Api Cog Loaded")
 
 	async def get_waifu_sfw(self, endpoint):
 
@@ -97,12 +97,12 @@ class Api(commands.Cog):
 				'colors':  [color.to_rgb() for color in colors],
 				'max_distance': 16
 			}
-			
+
 			headers = {'Authorization': f'Bearer {ctx.keys("ZZKEY")}'}
 			r = await self.bot.session.get(
-				f'https://zneitiz.herokuapp.com/image/replace_colors',
+				'https://zneitiz.herokuapp.com/image/replace_colors',
 				headers=headers,
-				json=json
+				json=json,
 			)
 
 			buf = BytesIO(await r.read())
@@ -187,7 +187,7 @@ class Api(commands.Cog):
 				501, 502, 503, 504, 506, 507,
 				508, 509, 510, 511, 521, 523, 525, 599]
 
-		await ctx.reply(f', '.join([f'`{num}`' for num in nums]), mention_author=False)
+		await ctx.reply(', '.join([f'`{num}`' for num in nums]), mention_author=False)
 
 	@commands.command()
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -200,7 +200,11 @@ class Api(commands.Cog):
 				response = await session.get(f"https://api.giphy.com/v1/gifs/trending?api_key={ctx.keys('GIPHYKEY')}&limit=25&rating=pg-13")
 			else:
 				embed = discord.Embed(title=f"{search} search result", color=self.bot.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
-				response = await session.get('http://api.giphy.com/v1/gifs/search?q=' + search + '&api_key=' + ctx.keys('GIPHYKEY') + '&limit=20')
+				response = await session.get(
+					f'http://api.giphy.com/v1/gifs/search?q={search}&api_key='
+					+ ctx.keys('GIPHYKEY')
+					+ '&limit=20'
+				)
 
 			data = json.loads(await response.text())
 			gif_choice = random.randint(0, len(data['data'])-1)
@@ -429,7 +433,7 @@ class Api(commands.Cog):
 	@commands.cooldown(1, 3, commands.BucketType.user)
 	async def pat(self, ctx, member:discord.Member=None):
 		if not member:
-			text = f"pat pat-"
+			text = "pat pat-"
 		else:
 			text = f"{ctx.author.display_name} pats {member.display_name}!"
 
@@ -586,7 +590,7 @@ class Api(commands.Cog):
 	@commands.cooldown(1, 3, commands.BucketType.user)
 	async def nom(self, ctx):
 		url = await self.get_waifu_sfw('nom')
-		embed = discord.Embed(title=f"nom nom nom", color=self.bot.c)
+		embed = discord.Embed(title="nom nom nom", color=self.bot.c)
 		embed.set_image(url=url)
 		await ctx.reply(embed=embed, mention_author=False)
 

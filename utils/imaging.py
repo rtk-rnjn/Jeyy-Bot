@@ -35,382 +35,381 @@ from wand.image import Image as wImage
 
 from utils.useful import osc
 
-if True:
-	res = 300
-	pv.global_theme.transparent_background = True
-	cow_mesh = examples.download_cow().smooth()
-	cube_mesh = pv.read("./models/cube.obj")
-	pyr_mesh = pv.read("./models/pyramid.obj")
-	wall_mesh = pv.read("./models/wall.obj")
-	bed_mesh = pv.read("./models/bed.obj")
-	glitcher = ImageGlitcher()
-	grass = Image.open("./image/game/grass64x.png").convert('RGBA')
-	water = Image.open("./image/game/water64x.png").convert('RGBA')
-	sand = Image.open("./image/game/sand64x.png").convert('RGBA')
-	stone = Image.open("./image/game/stone64x.png").convert('RGBA')
-	plank = Image.open("./image/game/plank64x.png").convert('RGBA')
-	glass = Image.open("./image/game/glass64x.png").convert('RGBA')
-	red = Image.open("./image/game/red64x.png").convert('RGBA')
-	iron = Image.open("./image/game/iron64x.png").convert('RGBA')
-	brick = Image.open("./image/game/brick64x.png").convert('RGBA')
-	gold = Image.open("./image/game/gold64x.png").convert('RGBA')
-	pur = Image.open("./image/game/pur64x.png").convert('RGBA')
-	leaf = Image.open("./image/game/leaf64x.png").convert('RGBA')
-	log = Image.open("./image/game/log64x.png").convert('RGBA')
-	coal = Image.open("./image/game/coal64x.png").convert('RGBA')
-	dia = Image.open("./image/game/diamond64x.png").convert('RGBA')
-	lava = Image.open("./image/game/lava64x.png").convert('RGBA')
-	hay = Image.open("./image/game/hay64x.png").convert('RGBA')
-	snowy = Image.open("./image/game/snowy64x.png").convert('RGBA')
-	layer = Image.open("./image/game/layer64x.png").convert('RGBA')
-	loff = Image.open("./image/game/lamp_off64x.png").convert('RGBA')
-	lon = Image.open("./image/game/lamp_on64x.png").convert('RGBA')
-	fence = Image.open("./image/game/fence64x.png").convert('RGBA')
-	man = Image.open("./image/game/man.png").convert('RGBA')
-	cake = Image.open("./image/game/cake64x.png").convert('RGBA')
-	pop = Image.open("./image/game/poppy64x.png").convert('RGBA')
-	lapis = Image.open("./image/game/lapis64x.png").convert('RGBA')
-	wfull = Image.open("./image/game/water_full64x.png").convert('RGBA')
-	lfull = Image.open("./image/game/lava_full64x.png").convert('RGBA')
-	wfullmid = Image.open("./image/game/water_full_mid64x.png").convert('RGBA')
-	lfullmid = Image.open("./image/game/lava_full_mid64x.png").convert('RGBA')
-	wmid = Image.open("./image/game/water_mid64x.png").convert('RGBA')
-	lmid = Image.open("./image/game/lava_mid64x.png").convert('RGBA')
+res = 300
+pv.global_theme.transparent_background = True
+cow_mesh = examples.download_cow().smooth()
+cube_mesh = pv.read("./models/cube.obj")
+pyr_mesh = pv.read("./models/pyramid.obj")
+wall_mesh = pv.read("./models/wall.obj")
+bed_mesh = pv.read("./models/bed.obj")
+glitcher = ImageGlitcher()
+grass = Image.open("./image/game/grass64x.png").convert('RGBA')
+water = Image.open("./image/game/water64x.png").convert('RGBA')
+sand = Image.open("./image/game/sand64x.png").convert('RGBA')
+stone = Image.open("./image/game/stone64x.png").convert('RGBA')
+plank = Image.open("./image/game/plank64x.png").convert('RGBA')
+glass = Image.open("./image/game/glass64x.png").convert('RGBA')
+red = Image.open("./image/game/red64x.png").convert('RGBA')
+iron = Image.open("./image/game/iron64x.png").convert('RGBA')
+brick = Image.open("./image/game/brick64x.png").convert('RGBA')
+gold = Image.open("./image/game/gold64x.png").convert('RGBA')
+pur = Image.open("./image/game/pur64x.png").convert('RGBA')
+leaf = Image.open("./image/game/leaf64x.png").convert('RGBA')
+log = Image.open("./image/game/log64x.png").convert('RGBA')
+coal = Image.open("./image/game/coal64x.png").convert('RGBA')
+dia = Image.open("./image/game/diamond64x.png").convert('RGBA')
+lava = Image.open("./image/game/lava64x.png").convert('RGBA')
+hay = Image.open("./image/game/hay64x.png").convert('RGBA')
+snowy = Image.open("./image/game/snowy64x.png").convert('RGBA')
+layer = Image.open("./image/game/layer64x.png").convert('RGBA')
+loff = Image.open("./image/game/lamp_off64x.png").convert('RGBA')
+lon = Image.open("./image/game/lamp_on64x.png").convert('RGBA')
+fence = Image.open("./image/game/fence64x.png").convert('RGBA')
+man = Image.open("./image/game/man.png").convert('RGBA')
+cake = Image.open("./image/game/cake64x.png").convert('RGBA')
+pop = Image.open("./image/game/poppy64x.png").convert('RGBA')
+lapis = Image.open("./image/game/lapis64x.png").convert('RGBA')
+wfull = Image.open("./image/game/water_full64x.png").convert('RGBA')
+lfull = Image.open("./image/game/lava_full64x.png").convert('RGBA')
+wfullmid = Image.open("./image/game/water_full_mid64x.png").convert('RGBA')
+lfullmid = Image.open("./image/game/lava_full_mid64x.png").convert('RGBA')
+wmid = Image.open("./image/game/water_mid64x.png").convert('RGBA')
+lmid = Image.open("./image/game/lava_mid64x.png").convert('RGBA')
 
-	fenu = Image.open("./image/game/fence_u64x.png").convert('RGBA')
-	fent = Image.open("./image/game/fence_t64x.png").convert('RGBA')
-	fens = Image.open("./image/game/fence_s64x.png").convert('RGBA')
-	fenb = Image.open("./image/game/fence_b64x.png").convert('RGBA')
-	fenbu = Image.open("./image/game/fence_bu64x.png").convert('RGBA')
-	fensb = Image.open("./image/game/fence_sb64x.png").convert('RGBA')
-	fentb = Image.open("./image/game/fence_tb64x.png").convert('RGBA')
-	fents = Image.open("./image/game/fence_ts64x.png").convert('RGBA')
-	fentsb = Image.open("./image/game/fence_tsb64x.png").convert('RGBA')
-	fenus = Image.open("./image/game/fence_us64x.png").convert('RGBA')
-	fenusb = Image.open("./image/game/fence_usb64x.png").convert('RGBA')
-	fenut = Image.open("./image/game/fence_ut64x.png").convert('RGBA')
-	fenutb = Image.open("./image/game/fence_utb64x.png").convert('RGBA')
-	fenuts = Image.open("./image/game/fence_uts64x.png").convert('RGBA')
-	fenutsb = Image.open("./image/game/fence_utsb64x.png").convert('RGBA')
+fenu = Image.open("./image/game/fence_u64x.png").convert('RGBA')
+fent = Image.open("./image/game/fence_t64x.png").convert('RGBA')
+fens = Image.open("./image/game/fence_s64x.png").convert('RGBA')
+fenb = Image.open("./image/game/fence_b64x.png").convert('RGBA')
+fenbu = Image.open("./image/game/fence_bu64x.png").convert('RGBA')
+fensb = Image.open("./image/game/fence_sb64x.png").convert('RGBA')
+fentb = Image.open("./image/game/fence_tb64x.png").convert('RGBA')
+fents = Image.open("./image/game/fence_ts64x.png").convert('RGBA')
+fentsb = Image.open("./image/game/fence_tsb64x.png").convert('RGBA')
+fenus = Image.open("./image/game/fence_us64x.png").convert('RGBA')
+fenusb = Image.open("./image/game/fence_usb64x.png").convert('RGBA')
+fenut = Image.open("./image/game/fence_ut64x.png").convert('RGBA')
+fenutb = Image.open("./image/game/fence_utb64x.png").convert('RGBA')
+fenuts = Image.open("./image/game/fence_uts64x.png").convert('RGBA')
+fenutsb = Image.open("./image/game/fence_utsb64x.png").convert('RGBA')
 
-	won = Image.open("./image/game/wire_on64x.png").convert('RGBA')
-	wonu = Image.open("./image/game/wire_on_u64x.png").convert('RGBA')
-	wont = Image.open("./image/game/wire_on_t64x.png").convert('RGBA')
-	wons = Image.open("./image/game/wire_on_s64x.png").convert('RGBA')
-	wonb = Image.open("./image/game/wire_on_b64x.png").convert('RGBA')
-	wonbu = Image.open("./image/game/wire_on_bu64x.png").convert('RGBA')
-	wonsb = Image.open("./image/game/wire_on_sb64x.png").convert('RGBA')
-	wontb = Image.open("./image/game/wire_on_tb64x.png").convert('RGBA')
-	wonts = Image.open("./image/game/wire_on_ts64x.png").convert('RGBA')
-	wontsb = Image.open("./image/game/wire_on_tsb64x.png").convert('RGBA')
-	wonus = Image.open("./image/game/wire_on_us64x.png").convert('RGBA')
-	wonusb = Image.open("./image/game/wire_on_usb64x.png").convert('RGBA')
-	wonut = Image.open("./image/game/wire_on_ut64x.png").convert('RGBA')
-	wonutb = Image.open("./image/game/wire_on_utb64x.png").convert('RGBA')
-	wonuts = Image.open("./image/game/wire_on_uts64x.png").convert('RGBA')
-	wonutsb = Image.open("./image/game/wire_on_utsb64x.png").convert('RGBA')
+won = Image.open("./image/game/wire_on64x.png").convert('RGBA')
+wonu = Image.open("./image/game/wire_on_u64x.png").convert('RGBA')
+wont = Image.open("./image/game/wire_on_t64x.png").convert('RGBA')
+wons = Image.open("./image/game/wire_on_s64x.png").convert('RGBA')
+wonb = Image.open("./image/game/wire_on_b64x.png").convert('RGBA')
+wonbu = Image.open("./image/game/wire_on_bu64x.png").convert('RGBA')
+wonsb = Image.open("./image/game/wire_on_sb64x.png").convert('RGBA')
+wontb = Image.open("./image/game/wire_on_tb64x.png").convert('RGBA')
+wonts = Image.open("./image/game/wire_on_ts64x.png").convert('RGBA')
+wontsb = Image.open("./image/game/wire_on_tsb64x.png").convert('RGBA')
+wonus = Image.open("./image/game/wire_on_us64x.png").convert('RGBA')
+wonusb = Image.open("./image/game/wire_on_usb64x.png").convert('RGBA')
+wonut = Image.open("./image/game/wire_on_ut64x.png").convert('RGBA')
+wonutb = Image.open("./image/game/wire_on_utb64x.png").convert('RGBA')
+wonuts = Image.open("./image/game/wire_on_uts64x.png").convert('RGBA')
+wonutsb = Image.open("./image/game/wire_on_utsb64x.png").convert('RGBA')
 
-	woff = Image.open("./image/game/wire_off64x.png").convert('RGBA')
-	woffu = Image.open("./image/game/wire_off_u64x.png").convert('RGBA')
-	wofft = Image.open("./image/game/wire_off_t64x.png").convert('RGBA')
-	woffs = Image.open("./image/game/wire_off_s64x.png").convert('RGBA')
-	woffb = Image.open("./image/game/wire_off_b64x.png").convert('RGBA')
-	woffbu = Image.open("./image/game/wire_off_bu64x.png").convert('RGBA')
-	woffsb = Image.open("./image/game/wire_off_sb64x.png").convert('RGBA')
-	wofftb = Image.open("./image/game/wire_off_tb64x.png").convert('RGBA')
-	woffts = Image.open("./image/game/wire_off_ts64x.png").convert('RGBA')
-	wofftsb = Image.open("./image/game/wire_off_tsb64x.png").convert('RGBA')
-	woffus = Image.open("./image/game/wire_off_us64x.png").convert('RGBA')
-	woffusb = Image.open("./image/game/wire_off_usb64x.png").convert('RGBA')
-	woffut = Image.open("./image/game/wire_off_ut64x.png").convert('RGBA')
-	woffutb = Image.open("./image/game/wire_off_utb64x.png").convert('RGBA')
-	woffuts = Image.open("./image/game/wire_off_uts64x.png").convert('RGBA')
-	woffutsb = Image.open("./image/game/wire_off_utsb64x.png").convert('RGBA')
+woff = Image.open("./image/game/wire_off64x.png").convert('RGBA')
+woffu = Image.open("./image/game/wire_off_u64x.png").convert('RGBA')
+wofft = Image.open("./image/game/wire_off_t64x.png").convert('RGBA')
+woffs = Image.open("./image/game/wire_off_s64x.png").convert('RGBA')
+woffb = Image.open("./image/game/wire_off_b64x.png").convert('RGBA')
+woffbu = Image.open("./image/game/wire_off_bu64x.png").convert('RGBA')
+woffsb = Image.open("./image/game/wire_off_sb64x.png").convert('RGBA')
+wofftb = Image.open("./image/game/wire_off_tb64x.png").convert('RGBA')
+woffts = Image.open("./image/game/wire_off_ts64x.png").convert('RGBA')
+wofftsb = Image.open("./image/game/wire_off_tsb64x.png").convert('RGBA')
+woffus = Image.open("./image/game/wire_off_us64x.png").convert('RGBA')
+woffusb = Image.open("./image/game/wire_off_usb64x.png").convert('RGBA')
+woffut = Image.open("./image/game/wire_off_ut64x.png").convert('RGBA')
+woffutb = Image.open("./image/game/wire_off_utb64x.png").convert('RGBA')
+woffuts = Image.open("./image/game/wire_off_uts64x.png").convert('RGBA')
+woffutsb = Image.open("./image/game/wire_off_utsb64x.png").convert('RGBA')
 
-	leoff = Image.open("./image/game/lever_off64x.png").convert('RGBA')
-	leon = Image.open("./image/game/lever_on64x.png").convert('RGBA')
+leoff = Image.open("./image/game/lever_off64x.png").convert('RGBA')
+leon = Image.open("./image/game/lever_on64x.png").convert('RGBA')
 
-	selector_back = Image.open("./image/game/selector_back.png").convert('RGBA')
-	selector_front = Image.open("./image/game/selector_front.png").convert('RGBA')
+selector_back = Image.open("./image/game/selector_back.png").convert('RGBA')
+selector_front = Image.open("./image/game/selector_front.png").convert('RGBA')
 
-	hands = [Image.open(f"./image/pat/{i}.png") for i in range(1, 6)]
-	news = Image.open("./image/newspaper.png")
-	mcmap = Image.open("./image/mcmap.png")
-	why_gif = Image.open("./image/why.gif")
-	scream_gif = Image.open("./image/scream.gif")
-	man_gif = Image.open("./image/eugh.gif")
-	elmo_gif = Image.open("./image/flamingelmo.gif")
-	jail_gif = Image.open("./image/hornijail.gif")
-	bomb_gif = Image.open("./image/bomb2.gif")
-	math_gif = Image.open("./image/trans-eq.gif")
-	buffer_gif = Image.open("./image/buffering.gif")
-	explicit_png = Image.open("./image/explicit.png").resize((600, 600))
-	tvt = ImageOps.contain(Image.open("./image/tvt.png"), (400, 400)).convert('RGBA')
-	balleye = Image.open("./image/balleye.png").convert('RGBA')
-	lup = Image.open("./image/lup.png").resize((200, 200))
-	prt = Image.open("./image/printer2.gif")
-	phone_gif = Image.open("./image/phone_girl.gif")
-	sensitive = Image.open("./image/sensitive.png").resize((400, 400)).convert('RGBA')
-	ads = Image.open('./image/ads.png').convert('RGBA').resize((300, 300))
-	toilet_img = Image.open("./image/toilet.png").convert('RGBA')
-	ipcam = Image.open("./image/ipcam.png").convert('RGBA')
-	reflect_mask = Image.open("./image/reflection_mask.gif")
-	liquefy_mask = Image.open("./image/liquefy_mask.gif")
-	washing_machine = Image.open("./image/washing_machine.png").convert('RGBA')
-	pizza_img = ImageOps.contain(Image.open("./image/pizza.png").convert('RGBA'), (512, 512))
-	plank_img = ImageOps.contain(Image.open("./image/plank.png"), (250, 250))
-	knit_img = ImageOps.contain(Image.open("./image/knit.png"), (250, 250))
+hands = [Image.open(f"./image/pat/{i}.png") for i in range(1, 6)]
+news = Image.open("./image/newspaper.png")
+mcmap = Image.open("./image/mcmap.png")
+why_gif = Image.open("./image/why.gif")
+scream_gif = Image.open("./image/scream.gif")
+man_gif = Image.open("./image/eugh.gif")
+elmo_gif = Image.open("./image/flamingelmo.gif")
+jail_gif = Image.open("./image/hornijail.gif")
+bomb_gif = Image.open("./image/bomb2.gif")
+math_gif = Image.open("./image/trans-eq.gif")
+buffer_gif = Image.open("./image/buffering.gif")
+explicit_png = Image.open("./image/explicit.png").resize((600, 600))
+tvt = ImageOps.contain(Image.open("./image/tvt.png"), (400, 400)).convert('RGBA')
+balleye = Image.open("./image/balleye.png").convert('RGBA')
+lup = Image.open("./image/lup.png").resize((200, 200))
+prt = Image.open("./image/printer2.gif")
+phone_gif = Image.open("./image/phone_girl.gif")
+sensitive = Image.open("./image/sensitive.png").resize((400, 400)).convert('RGBA')
+ads = Image.open('./image/ads.png').convert('RGBA').resize((300, 300))
+toilet_img = Image.open("./image/toilet.png").convert('RGBA')
+ipcam = Image.open("./image/ipcam.png").convert('RGBA')
+reflect_mask = Image.open("./image/reflection_mask.gif")
+liquefy_mask = Image.open("./image/liquefy_mask.gif")
+washing_machine = Image.open("./image/washing_machine.png").convert('RGBA')
+pizza_img = ImageOps.contain(Image.open("./image/pizza.png").convert('RGBA'), (512, 512))
+plank_img = ImageOps.contain(Image.open("./image/plank.png"), (250, 250))
+knit_img = ImageOps.contain(Image.open("./image/knit.png"), (250, 250))
 
-	shot_street = Image.open("./image/shot/street.jpg").resize((400, 400)).convert('RGBA')
-	shot_gun = ImageOps.fit(Image.open("./image/shot/gun.png"), (250, 250)).convert('RGBA')
-	shot_wound = ImageOps.fit(Image.open("./image/shot/wound.png"), (50, 50)).convert('RGBA')
-	shot_heaven = Image.open("./image/shot/heaven.jpg").resize((400, 400)).convert('RGBA')
-	shot_hell = Image.open("./image/shot/hell.jpg").resize((400, 400)).convert('RGBA')
+shot_street = Image.open("./image/shot/street.jpg").resize((400, 400)).convert('RGBA')
+shot_gun = ImageOps.fit(Image.open("./image/shot/gun.png"), (250, 250)).convert('RGBA')
+shot_wound = ImageOps.fit(Image.open("./image/shot/wound.png"), (50, 50)).convert('RGBA')
+shot_heaven = Image.open("./image/shot/heaven.jpg").resize((400, 400)).convert('RGBA')
+shot_hell = Image.open("./image/shot/hell.jpg").resize((400, 400)).convert('RGBA')
 
-	fan_img = Image.open("./image/fan.png").resize((400, 400)).convert('RGBA')
-	warm_palette = Image.open("./image/warm_palette.png").convert('RGBA')
-	brush_mask = Image.open("./image/brush_mask.gif")
-	flare_img = Image.open("./image/flare.png").resize((50, 50)).convert('RGBA')
-	kanye_img = Image.open("./image/kanye.png").convert('RGBA')
-	cinema_img = ImageOps.contain(Image.open("./image/cinema.png"), (400, 400))
+fan_img = Image.open("./image/fan.png").resize((400, 400)).convert('RGBA')
+warm_palette = Image.open("./image/warm_palette.png").convert('RGBA')
+brush_mask = Image.open("./image/brush_mask.gif")
+flare_img = Image.open("./image/flare.png").resize((50, 50)).convert('RGBA')
+kanye_img = Image.open("./image/kanye.png").convert('RGBA')
+cinema_img = ImageOps.contain(Image.open("./image/cinema.png"), (400, 400))
 
-	wheel_images = {
-		'wheel_2' : [Image.open(f"./image/wheel/wheel_2/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_2"))-1)],
-		'wheel_3' : [Image.open(f"./image/wheel/wheel_3/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_3"))-1)],
-		'wheel_4' : [Image.open(f"./image/wheel/wheel_4/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_4"))-1)],
-		'wheel_6' : [Image.open(f"./image/wheel/wheel_6/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_6"))-1)],
-	}
+wheel_images = {
+	'wheel_2' : [Image.open(f"./image/wheel/wheel_2/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_2"))-1)],
+	'wheel_3' : [Image.open(f"./image/wheel/wheel_3/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_3"))-1)],
+	'wheel_4' : [Image.open(f"./image/wheel/wheel_4/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_4"))-1)],
+	'wheel_6' : [Image.open(f"./image/wheel/wheel_6/frame ({i+1}).png") for i in range(len(os.listdir("./image/wheel/wheel_6"))-1)],
+}
 
-	scrap_letters = {}
-	for img_dir in glob.glob("./image/letters/*/*"):
-		scrap_letters.setdefault(basename(dirname(img_dir)), []).append(Image.open(img_dir))
+scrap_letters = {}
+for img_dir in glob.glob("./image/letters/*/*"):
+	scrap_letters.setdefault(basename(dirname(img_dir)), []).append(Image.open(img_dir))
 
-	codes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'g', 'p', 'l', 'o', 'c', 'd', 'v', 'h', 's', 'k', 'y', 'r', 'b', '%', 'f', 'w', '$', 'e', '#',
-	'┌', '┐', '└', '┘', '│', '─', '┬', '┤', '┴', '├', '┼', '╌', '╎', '╍', '╏', '┏', '┓', '┗', '┛', '┃', '━', '┳', '┫', '┻', '┣', '╋', '┄', '┆', '┅', '┇',
-	'╔' , '╗', '╚', '╝', '║', '═', '╩', '╠', '╦', '╣', '╬', '╴', '╶', '╵', '╷', '░', '▒', '▓', '█', '∙', '·']
+codes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'g', 'p', 'l', 'o', 'c', 'd', 'v', 'h', 's', 'k', 'y', 'r', 'b', '%', 'f', 'w', '$', 'e', '#',
+'┌', '┐', '└', '┘', '│', '─', '┬', '┤', '┴', '├', '┼', '╌', '╎', '╍', '╏', '┏', '┓', '┗', '┛', '┃', '━', '┳', '┫', '┻', '┣', '╋', '┄', '┆', '┅', '┇',
+'╔' , '╗', '╚', '╝', '║', '═', '╩', '╠', '╦', '╣', '╬', '╴', '╶', '╵', '╷', '░', '▒', '▓', '█', '∙', '·']
 
-	codeses = codes.copy()
-	codeses.extend([' ', '-', '0', 'x', '\n', '[', ']'])
+codeses = codes.copy()
+codeses.extend([' ', '-', '0', 'x', '\n', '[', ']'])
 
-	code_dict = {
-		'1': grass,
-		'2': water,
-		'3': sand,
-		'4': stone,
-		'5': plank,
-		'6': glass,
-		'7': red,
-		'8': iron, 
-		'9': brick,
-		'g': gold, 
-		'p': pur,
-		'l': leaf,
-		'o': log, 
-		'c': coal, 
-		'd': dia, 
-		'v': lava, 
-		'h': hay, 
-		's': layer, 
-		'k': cake,
-		'y': pop,
-		'r': loff, 
-		'b': lapis,
-		'%': lon, 
-		'f': fence, 
-		'w': woff, 
-		'$': won, 
-		'e': leoff, 
-		'#': leon,
-		'┌': woffut,
-		'┐': woffts, 
-		'└': woffbu,
-		'┘': woffsb,
-		'│': wofftb,
-		'─': woffus,
-		'┬': woffuts,
-		'┤': wofftsb,
-		'┴': woffusb, 
-		'├': woffutb,
-		'┼': woffutsb,
-		'╌': woffu,
-		'╎': wofft,
-		'╍': woffs,
-		'╏': woffb,
-		'┏': wonut, 
-		'┓': wonts,
-		'┗': wonbu, 
-		'┛': wonsb, 
-		'┃': wontb, 
-		'━': wonus, 
-		'┳': wonuts, 
-		'┫': wontsb, 
-		'┻': wonusb, 
-		'┣': wonutb, 
-		'╋': wonutsb, 
-		'┄': wonu, 
-		'┆': wont, 
-		'┅': wons, 
-		'┇': wonb, 
-		'╔': fenut, 
-		'╗': fents, 
-		'╚': fenbu, 
-		'╝': fensb, 
-		'║': fentb, 
-		'═': fenus, 
-		'╦': fenuts, 
-		'╣': fentsb, 
-		'╩': fenusb, 
-		'╠': fenutb, 
-		'╬': fenutsb, 
-		'╶': fenu,
-		'╷': fent,
-		'╴': fens,
-		'╵': fenb,
-		'░': wfull,
-		'▒': lfull,
-		'▓': wfullmid, 
-		'∙': wmid, 
-		'█': lfullmid, 
-		'·': lmid
-	}
+code_dict = {
+	'1': grass,
+	'2': water,
+	'3': sand,
+	'4': stone,
+	'5': plank,
+	'6': glass,
+	'7': red,
+	'8': iron, 
+	'9': brick,
+	'g': gold, 
+	'p': pur,
+	'l': leaf,
+	'o': log, 
+	'c': coal, 
+	'd': dia, 
+	'v': lava, 
+	'h': hay, 
+	's': layer, 
+	'k': cake,
+	'y': pop,
+	'r': loff, 
+	'b': lapis,
+	'%': lon, 
+	'f': fence, 
+	'w': woff, 
+	'$': won, 
+	'e': leoff, 
+	'#': leon,
+	'┌': woffut,
+	'┐': woffts, 
+	'└': woffbu,
+	'┘': woffsb,
+	'│': wofftb,
+	'─': woffus,
+	'┬': woffuts,
+	'┤': wofftsb,
+	'┴': woffusb, 
+	'├': woffutb,
+	'┼': woffutsb,
+	'╌': woffu,
+	'╎': wofft,
+	'╍': woffs,
+	'╏': woffb,
+	'┏': wonut, 
+	'┓': wonts,
+	'┗': wonbu, 
+	'┛': wonsb, 
+	'┃': wontb, 
+	'━': wonus, 
+	'┳': wonuts, 
+	'┫': wontsb, 
+	'┻': wonusb, 
+	'┣': wonutb, 
+	'╋': wonutsb, 
+	'┄': wonu, 
+	'┆': wont, 
+	'┅': wons, 
+	'┇': wonb, 
+	'╔': fenut, 
+	'╗': fents, 
+	'╚': fenbu, 
+	'╝': fensb, 
+	'║': fentb, 
+	'═': fenus, 
+	'╦': fenuts, 
+	'╣': fentsb, 
+	'╩': fenusb, 
+	'╠': fenutb, 
+	'╬': fenutsb, 
+	'╶': fenu,
+	'╷': fent,
+	'╴': fens,
+	'╵': fenb,
+	'░': wfull,
+	'▒': lfull,
+	'▓': wfullmid, 
+	'∙': wmid, 
+	'█': lfullmid, 
+	'·': lmid
+}
 
-	letters = {
-		' ': '0',
-		"'": '11',
-		'"': '11 0 11',
-		'<': '10001 0101 001',
-		'>': '001 0101 10001',
-		':': '0101',
-		';': '0101 00001',
-		',': '0001 00001',
-		'.': '00001',
-		'-': '001 001 001',
-		'+': '001 0111 001',
-		'=': '0101 0101 0101',
-		'_': '00001 00001 00001',
-		'^': '01 1 01',
-		'!': '11101',
-		'?': '011 100101 1',
-		'#': '0101 11111 0101 11111 0101',
-		'%': '10001 01 001 0001 10001',
-		')': '0111 10001',
-		'(': '10001 0111',
-		'\\':'00001 0001 001 01 1',
-		'/': '1 01 001 0001 00001',
-		'*': '101 01 101',
-		'@': '01111 1 10111 10001 0111',
-		'~': '01 1 01 1',
-		']': '11111 10001',
-		'[': '10001 11111',
-		'}': '001 0111 10001',
-		'{': '10001 0111 001',
-		'a': '01111 10100 01111', 
-		'b': '0101 10101 11111', 
-		'c': '10001 10001 11111',
-		'd': '0111 10001 11111',
-		'e': '10101 10101 11111',
-		'f': '101 101 11111',
-		'g': '0011 10101 10001 0111',
-		'h': '11111 001 11111',
-		'i': '10001 11111 10001',
-		'j': '11111 10001 10001 1001',
-		'k': '10001 0101 001 11111',
-		'l': '00001 00001 11111',
-		'm': '11111 01 001 01 11111',
-		'n': '11111 0001 001 01 11111',
-		'o': '0111 10001 10001 0111',
-		'p': '111 101 11111',
-		'q': '00001 1111 1001 1111',
-		'r': '11011 101 11111',
-		's': '1011 10101 01101',
-		't': '1 11111 1',
-		'u': '11111 00001 11111',
-		'v': '111 0001 00001 0001 111', 
-		'w': '1111 00001 0111 00001 1111',
-		'x': '10001 0101 001 0101 10001', 
-		'y': '1 01 00111 01 1' , 
-		'z': '10001 11001 10101 10011 10001',
-		'0': '11111 10001 11111',
-		'1': '00001 11111 10001',
-		'2': '11101 10101 10111',
-		'3': '11111 10101 10101',
-		'4': '11111 001 111',
-		'5': '10111 10101 11101',
-		'6': '10111 10101 11111',
-		'7': '11111 1 1',
-		'8': '11111 10101 11111',
-		'9': '11111 10101 11101'
-	}
+letters = {
+	' ': '0',
+	"'": '11',
+	'"': '11 0 11',
+	'<': '10001 0101 001',
+	'>': '001 0101 10001',
+	':': '0101',
+	';': '0101 00001',
+	',': '0001 00001',
+	'.': '00001',
+	'-': '001 001 001',
+	'+': '001 0111 001',
+	'=': '0101 0101 0101',
+	'_': '00001 00001 00001',
+	'^': '01 1 01',
+	'!': '11101',
+	'?': '011 100101 1',
+	'#': '0101 11111 0101 11111 0101',
+	'%': '10001 01 001 0001 10001',
+	')': '0111 10001',
+	'(': '10001 0111',
+	'\\':'00001 0001 001 01 1',
+	'/': '1 01 001 0001 00001',
+	'*': '101 01 101',
+	'@': '01111 1 10111 10001 0111',
+	'~': '01 1 01 1',
+	']': '11111 10001',
+	'[': '10001 11111',
+	'}': '001 0111 10001',
+	'{': '10001 0111 001',
+	'a': '01111 10100 01111', 
+	'b': '0101 10101 11111', 
+	'c': '10001 10001 11111',
+	'd': '0111 10001 11111',
+	'e': '10101 10101 11111',
+	'f': '101 101 11111',
+	'g': '0011 10101 10001 0111',
+	'h': '11111 001 11111',
+	'i': '10001 11111 10001',
+	'j': '11111 10001 10001 1001',
+	'k': '10001 0101 001 11111',
+	'l': '00001 00001 11111',
+	'm': '11111 01 001 01 11111',
+	'n': '11111 0001 001 01 11111',
+	'o': '0111 10001 10001 0111',
+	'p': '111 101 11111',
+	'q': '00001 1111 1001 1111',
+	'r': '11011 101 11111',
+	's': '1011 10101 01101',
+	't': '1 11111 1',
+	'u': '11111 00001 11111',
+	'v': '111 0001 00001 0001 111', 
+	'w': '1111 00001 0111 00001 1111',
+	'x': '10001 0101 001 0101 10001', 
+	'y': '1 01 00111 01 1' , 
+	'z': '10001 11001 10101 10011 10001',
+	'0': '11111 10001 11111',
+	'1': '00001 11111 10001',
+	'2': '11101 10101 10111',
+	'3': '11111 10101 10101',
+	'4': '11111 001 111',
+	'5': '10111 10101 11101',
+	'6': '10111 10101 11111',
+	'7': '11111 1 1',
+	'8': '11111 10101 11111',
+	'9': '11111 10101 11101'
+}
 
-	golf_grass = Image.open("./image/golf/grass.png").convert("RGBA")
-	golf_stone = Image.open("./image/golf/stone.png").convert("RGBA")
-	golf_degrees = Image.open("./image/golf/degrees.png").convert("RGBA").resize((100, 100))
-	golf_flag = Image.open("./image/golf/flag.png").convert("RGBA")
-	font_arial = ImageFont.truetype("./image/arial.ttf", 24)
-	font_arial2 = ImageFont.truetype("./image/arial.ttf", 12)
-	font_arial3 = ImageFont.truetype("./image/arial.ttf", 20)
-	font_arial4 = ImageFont.truetype("./image/arial.ttf", 60)
+golf_grass = Image.open("./image/golf/grass.png").convert("RGBA")
+golf_stone = Image.open("./image/golf/stone.png").convert("RGBA")
+golf_degrees = Image.open("./image/golf/degrees.png").convert("RGBA").resize((100, 100))
+golf_flag = Image.open("./image/golf/flag.png").convert("RGBA")
+font_arial = ImageFont.truetype("./image/arial.ttf", 24)
+font_arial2 = ImageFont.truetype("./image/arial.ttf", 12)
+font_arial3 = ImageFont.truetype("./image/arial.ttf", 20)
+font_arial4 = ImageFont.truetype("./image/arial.ttf", 60)
 
-	red_carpet = Image.open('./image/redcarpet.png').convert('RGBA')
-	flashes = Image.open('./image/Paparazzi_flashes.gif')
+red_carpet = Image.open('./image/redcarpet.png').convert('RGBA')
+flashes = Image.open('./image/Paparazzi_flashes.gif')
 
-	heart_imgs = [Image.open(f'./image/hearts/heart_{i}.png').convert('RGBA') for i in range(7)]
+heart_imgs = [Image.open(f'./image/hearts/heart_{i}.png').convert('RGBA') for i in range(7)]
 
-	ace_asset = {
-		'court': {
-			'bg_l': Image.open('./image/ace/court_bg_left.jpg').convert('RGBA'),
-			'bg_r': Image.open('./image/ace/court_bg_right.jpg').convert('RGBA'),
-			'desk_l': Image.open('./image/ace/desk_left.png'),
-			'desk_r': Image.open('./image/ace/desk_right.png'),
-		},
-		'wright': [
-			{'talk':Image.open('./image/ace/wright_1.gif'), 'normal': Image.open('./image/ace/wright_normal_1.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_2.gif'), 'normal': Image.open('./image/ace/wright_normal_2.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_3.gif'), 'normal': Image.open('./image/ace/wright_normal_3.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_4.gif'), 'normal': Image.open('./image/ace/wright_normal_4.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_5.gif'), 'normal': Image.open('./image/ace/wright_normal_5.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_6.gif'), 'normal': Image.open('./image/ace/wright_normal_6.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_7.gif'), 'normal': Image.open('./image/ace/wright_normal_7.png').convert('RGBA')},
-			{'talk':Image.open('./image/ace/wright_8.gif'), 'normal': Image.open('./image/ace/wright_normal_8.png').convert('RGBA')},
-		],
-		'miles': [
-			{'talk': Image.open('./image/ace/miles_1.gif'), 'normal': Image.open('./image/ace/miles_normal_1.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_2.gif'), 'normal': Image.open('./image/ace/miles_normal_2.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_3.gif'), 'normal': Image.open('./image/ace/miles_normal_3.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_4.gif'), 'normal': Image.open('./image/ace/miles_normal_4.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_5.gif'), 'normal': Image.open('./image/ace/miles_normal_5.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_6.gif'), 'normal': Image.open('./image/ace/miles_normal_6.png').convert('RGBA')},
-			{'talk': Image.open('./image/ace/miles_7.gif'), 'normal': Image.open('./image/ace/miles_normal_7.png').convert('RGBA')},
-		]
-	}
+ace_asset = {
+	'court': {
+		'bg_l': Image.open('./image/ace/court_bg_left.jpg').convert('RGBA'),
+		'bg_r': Image.open('./image/ace/court_bg_right.jpg').convert('RGBA'),
+		'desk_l': Image.open('./image/ace/desk_left.png'),
+		'desk_r': Image.open('./image/ace/desk_right.png'),
+	},
+	'wright': [
+		{'talk':Image.open('./image/ace/wright_1.gif'), 'normal': Image.open('./image/ace/wright_normal_1.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_2.gif'), 'normal': Image.open('./image/ace/wright_normal_2.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_3.gif'), 'normal': Image.open('./image/ace/wright_normal_3.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_4.gif'), 'normal': Image.open('./image/ace/wright_normal_4.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_5.gif'), 'normal': Image.open('./image/ace/wright_normal_5.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_6.gif'), 'normal': Image.open('./image/ace/wright_normal_6.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_7.gif'), 'normal': Image.open('./image/ace/wright_normal_7.png').convert('RGBA')},
+		{'talk':Image.open('./image/ace/wright_8.gif'), 'normal': Image.open('./image/ace/wright_normal_8.png').convert('RGBA')},
+	],
+	'miles': [
+		{'talk': Image.open('./image/ace/miles_1.gif'), 'normal': Image.open('./image/ace/miles_normal_1.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_2.gif'), 'normal': Image.open('./image/ace/miles_normal_2.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_3.gif'), 'normal': Image.open('./image/ace/miles_normal_3.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_4.gif'), 'normal': Image.open('./image/ace/miles_normal_4.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_5.gif'), 'normal': Image.open('./image/ace/miles_normal_5.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_6.gif'), 'normal': Image.open('./image/ace/miles_normal_6.png').convert('RGBA')},
+		{'talk': Image.open('./image/ace/miles_7.gif'), 'normal': Image.open('./image/ace/miles_normal_7.png').convert('RGBA')},
+	]
+}
 
-	creeps = [Image.open(path).convert('RGBA').resize((400, 400)) for path in glob.glob('./image/creepy/*')]
+creeps = [Image.open(path).convert('RGBA').resize((400, 400)) for path in glob.glob('./image/creepy/*')]
 
-	ytgif = Image.open('./image/ytgif.gif')
-	roboto_reg = ImageFont.truetype('./image/Roboto-Regular.ttf', 30)
-	roboto_lig = ImageFont.truetype('./image/Roboto-Light.ttf', 25)
+ytgif = Image.open('./image/ytgif.gif')
+roboto_reg = ImageFont.truetype('./image/Roboto-Regular.ttf', 30)
+roboto_lig = ImageFont.truetype('./image/Roboto-Light.ttf', 25)
 
-	sfontbold = ImageFont.truetype('./image/GothamBold.ttf', 70)
-	sfont = ImageFont.truetype('./image/GothamMedium.ttf', 50)
-	tfont = ImageFont.truetype('./image/GothamMedium.ttf', 80)
-	mfont = ImageFont.truetype('./image/nk57-monospace-no-eb.ttf', 10)
-	
-	sfont_title = ImageFont.truetype('./fonts/SourceHanSans-Bold.ttc', 60)
-	sfont_auth = ImageFont.truetype('./fonts/SourceHanSans-Bold.ttc', 50)
+sfontbold = ImageFont.truetype('./image/GothamBold.ttf', 70)
+sfont = ImageFont.truetype('./image/GothamMedium.ttf', 50)
+tfont = ImageFont.truetype('./image/GothamMedium.ttf', 80)
+mfont = ImageFont.truetype('./image/nk57-monospace-no-eb.ttf', 10)
 
-	wordle_font = ImageFont.truetype('./image/Roboto-Medium.ttf', 90)
-	wordle_key = ImageFont.truetype('./image/Roboto-Medium.ttf', 20)
+sfont_title = ImageFont.truetype('./fonts/SourceHanSans-Bold.ttc', 60)
+sfont_auth = ImageFont.truetype('./fonts/SourceHanSans-Bold.ttc', 50)
 
-	ace_name_font = ImageFont.truetype('./image/arial.ttf', 25)
-	ace_text_font = ImageFont.truetype('./image/arial.ttf', 20)
+wordle_font = ImageFont.truetype('./image/Roboto-Medium.ttf', 90)
+wordle_key = ImageFont.truetype('./image/Roboto-Medium.ttf', 20)
 
-	player_bold_60 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 60)
-	player_bold_40 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 40)
-	player_reg = ImageFont.truetype('./image/NotoSans-Regular.ttf', 40)
+ace_name_font = ImageFont.truetype('./image/arial.ttf', 25)
+ace_text_font = ImageFont.truetype('./image/arial.ttf', 20)
 
-	wstat_reg = ImageFont.truetype('./image/NotoSans-Regular.ttf', 20)
-	wstat_bold_20 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 20)
-	wstat_bold_30 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 30)
+player_bold_60 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 60)
+player_bold_40 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 40)
+player_reg = ImageFont.truetype('./image/NotoSans-Regular.ttf', 40)
+
+wstat_reg = ImageFont.truetype('./image/NotoSans-Regular.ttf', 20)
+wstat_bold_20 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 20)
+wstat_bold_30 = ImageFont.truetype('./image/NotoSans-Bold.ttf', 30)
 
 
 class Ball:
@@ -602,10 +601,10 @@ def golf_func(posx, posy, degree, power, ranges, _map, strokes):
 	velx = power * math.cos(math.radians(degree)) * 100
 	vely = power * math.sin(math.radians(degree)) * 100
 	finx, finy = _map.finish
-	
+
 	ball = GolfBall(posx, posy, 10, 'white', 1)
 	ball.body.velocity = velx, vely
-	
+
 	walls = [
 		GolfWall(0, 0, 0, res, 20, plane='vertical'),
 		GolfWall(0, 0, res, 0, 20),
@@ -613,16 +612,14 @@ def golf_func(posx, posy, degree, power, ranges, _map, strokes):
 		GolfWall(0, res, res, res, 20),
 	]
 
-	for wall in _map.walls:
-		walls.append(GolfWall(*wall))
-
+	walls.extend(GolfWall(*wall) for wall in _map.walls)
 	wall_canvas = Image.new('RGBA', (300, 300))
 	wall_draw = ImageDraw.Draw(wall_canvas)
 
 	for wall in walls:
 		wall.draw(wall_draw)
 		space.add(wall.body, wall.shape)
-	
+
 	wall_canvas = wall_canvas.convert('L')
 	board_canvas = Image.new('RGBA', (300, 300))
 	board_canvas.paste(golf_stone, (0, 0), wall_canvas)
@@ -640,7 +637,7 @@ def golf_func(posx, posy, degree, power, ranges, _map, strokes):
 	draw.text((15, 20), f"Degree : {degree}°", 'black', font=font_arial)
 	draw.text((170, 20), f"Power : {power}", 'black', font=font_arial)
 	draw.text((15, 60), f"Stroke{['', 's'][strokes>1]} : {strokes}", 'black', font=font_arial)
-	draw.text((167, 80), f"0    5    10    15    20", 'black', font=font_arial2)
+	draw.text((167, 80), "0    5    10    15    20", 'black', font=font_arial2)
 
 	durations = [1000]
 	frames = []
@@ -654,15 +651,15 @@ def golf_func(posx, posy, degree, power, ranges, _map, strokes):
 		durations.append(FPS)
 
 		space.step(1/FPS)
-		
+
 		fobj = BytesIO()
 		screen2.save(fobj, "GIF")
 		screen2 = Image.open(fobj)
 		frames.append(screen2)
-	
+
 	endx, endy = ball.body.position
 	durations.pop()
-	
+
 	igif = BytesIO()
 	frames[0].save(igif, format='GIF', append_images=frames[1:], save_all=True, duration=durations, disposal=2)
 	igif.seek(0)
@@ -843,7 +840,7 @@ def lever_gif(img1, img2):
 	return wand_gif([img_1, img_2], 500)
 
 @executor_function
-def  img_to_iso(img, best):
+def img_to_iso(img, best):
 	img = Image.open(img).resize((best, best)).convert('RGBA').transpose(Image.FLIP_TOP_BOTTOM)
 
 	colors = np.array([
@@ -864,10 +861,7 @@ def  img_to_iso(img, best):
 	data = list(img.getdata())
 	iso = ''
 	for i, (r, g, b, a) in enumerate(data):
-		if a == 0: 
-			iso += '0'
-		else:
-			iso += get_closest(r, g, b)
+		iso += '0' if a == 0 else get_closest(r, g, b)
 		if (i+1) % img.width == 0:
 			iso += '-'
 
@@ -900,7 +894,7 @@ def logic(blocks):
 			for k, el in enumerate(row):
 				if el == 'r':
 					a = []
-					if i-1 >= 0:
+					if i >= 1:
 						try:
 							a.append(arr[i-1][j][k])
 						except IndexError:
@@ -909,7 +903,7 @@ def logic(blocks):
 						a.append(arr[i+1][j][k])
 					except IndexError:
 						pass
-					if j-1 >= 0:
+					if j >= 1:
 						try:
 							a.append(arr[i][j-1][k])
 						except IndexError:
@@ -918,7 +912,7 @@ def logic(blocks):
 						a.append(arr[i][j+1][k])
 					except IndexError:
 						pass
-					if k-1 >= 0:
+					if k >= 1:
 						try:
 							a.append(arr[i][j][k-1])
 						except IndexError:
@@ -933,9 +927,7 @@ def logic(blocks):
 
 	res = '- '.join([' '.join([''.join(row) for row in lay]) for lay in arr])
 	res = res.strip()
-	res = re.sub(" +", ' ', res)
-
-	return res
+	return re.sub(" +", ' ', res)
 
 def wires(blocks):
 	blocks = blocks.replace("\n", " ")

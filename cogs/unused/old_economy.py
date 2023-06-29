@@ -10,7 +10,7 @@ class Economy(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"Economy Cog Loaded")
+		print("Economy Cog Loaded")
 
 	@commands.command(name="daily")
 	@commands.cooldown(1, 86400, commands.BucketType.user)
@@ -40,7 +40,7 @@ class Economy(commands.Cog):
 
 		if not user:
 			await self.client.pg_con.execute("INSERT INTO eco (user_id, coins, inv) VALUES ($1, $2, ARRAY[[$3, $4]])", author_id, 0, 'worm', '3')
-		
+
 		inv_all = await self.client.pg_con.fetchrow("SELECT * FROM eco WHERE user_id = $1", author_id)
 		inv = inv_all["inv"]
 		bucket = inv_all["bucket"]
@@ -67,8 +67,7 @@ class Economy(commands.Cog):
 
 					for j in bucket:
 						if j[0] == caught:
-							count = int(j[1])
-							count += 1
+							count = int(j[1]) + 1
 							bucket[bucket.index(j)][1] = str(count)
 							await self.client.pg_con.execute("UPDATE eco SET (inv, bucket) = ($1, $2) WHERE user_id = $3", inv, bucket, author_id)
 							break
@@ -93,13 +92,11 @@ class Economy(commands.Cog):
 		"""See your inventory"""
 		author_id = ctx.author.id
 
-		_items = []
 		inv = await self.client.pg_con.fetchrow("SELECT inv FROM eco WHERE user_id = $1", author_id)
 		if not inv or not inv[0]:
 			await ctx.reply(embed=discord.Embed(title="You don't have any item.", color=self.client.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url), mention_author=False)
 		else:
-			for i in inv[0]:
-				_items.append(f"[{i[1]}] {i[0]}")
+			_items = [f"[{i[1]}] {i[0]}" for i in inv[0]]
 			await ctx.reply(embed=discord.Embed(title="Your item(s):", description="```c\n{} ```".format("\n".join(_items)), color=self.client.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url), mention_author=False)
 
 	@commands.command(name="bucket")
@@ -107,15 +104,13 @@ class Economy(commands.Cog):
 		"""See things you have caught"""
 		author_id = ctx.author.id
 
-		_items = []
-		emojis = {'pair of boots':'\U0001f462', 'cod':'\U0001f41f', 'tropical fish':'\U0001f420', 'blowfish':'\U0001f421', 'shark':'\U0001f988'}
 		bucket = await self.client.pg_con.fetchrow("SELECT bucket FROM eco WHERE user_id = $1", author_id)
 
 		if not bucket or not bucket[0]:
 			await ctx.reply(embed=discord.Embed(title="Your bucket is empty!", color=self.client.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url), mention_author=False)
 		else:
-			for i in bucket[0]:
-				_items.append(f"[{i[1]}] {i[0]} {emojis[i[0]]}")
+			emojis = {'pair of boots':'\U0001f462', 'cod':'\U0001f41f', 'tropical fish':'\U0001f420', 'blowfish':'\U0001f421', 'shark':'\U0001f988'}
+			_items = [f"[{i[1]}] {i[0]} {emojis[i[0]]}" for i in bucket[0]]
 			await ctx.reply(embed=discord.Embed(title="Your bucket contains:", description="```r\n{} ```".format("\n".join(_items)), color=self.client.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url), mention_author=False)
 
 	@commands.command(name="sell")
@@ -127,7 +122,11 @@ class Economy(commands.Cog):
 			return user == ctx.author and (str(reaction.emoji) in [f"{nums[i]}\U0000fe0f\U000020e3" for i in range(len(_items)-1)] or str(reaction.emoji) == "\U0000274e") and reaction.message == select
 
 		def check_confirm(reaction, user):
-			return user == ctx.author and str(reaction.emoji) in ["\U00002705", "\U0000274e"] and reaction.message == confirm
+			return (
+				user == ctx.author
+				and str(reaction.emoji) in {"\U00002705", "\U0000274e"}
+				and reaction.message == confirm
+			)
 
 		def check_msg(msg:discord.Message):
 			return msg.author == ctx.author and msg.channel == hm.channel
@@ -140,7 +139,7 @@ class Economy(commands.Cog):
 		if not bucket or not bucket[0]:
 			await ctx.reply(embed=discord.Embed(title="Your bucket is empty!", color=self.client.c).set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url), mention_author=False)
 		elif item:
-			
+
 			if item == "all":
 				_items = []
 				total = 0
@@ -152,7 +151,7 @@ class Economy(commands.Cog):
 
 				embed = discord.Embed(title="Sell confirmation:", description="```r\nAre you sure you want to sell:\n{}\n\nReact \U00002705 or \U0000274e . ```".format("\n".join(_items)), color=self.client.c)
 				embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-				
+
 				confirm = await ctx.reply(embed=embed, mention_author=False)
 				await confirm.add_reaction("\U00002705")
 				await confirm.add_reaction("\U0000274e")
@@ -175,7 +174,7 @@ class Economy(commands.Cog):
 					elif w.emoji == "\U0000274e":
 						await confirm.delete()
 						await ctx.reply("Cancelled.", mention_author=False)
-						
+
 				except asyncio.TimeoutError:
 					await confirm.delete()
 					await ctx.reply("Timed out.", mention_author=False, delete_after=15)
@@ -207,10 +206,10 @@ class Economy(commands.Cog):
 
 						embed = discord.Embed(title="Type how many items you want to sell:", description=f"```r\nType in how many {selected_name} you want to sell. You have {selected_count}.\n\nEach item sells for : {price[selected_name]} coins. ```", color=self.client.c)
 						embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-						embed.set_footer(text=f"Type [cancel] to cancel.")
+						embed.set_footer(text="Type [cancel] to cancel.")
 
 						hm = await ctx.reply(embed=embed, mention_author=False)	
-						
+
 						while True:
 							try:
 								m = await self.client.wait_for('message', timeout = 20.5, check=check_msg)
@@ -220,7 +219,7 @@ class Economy(commands.Cog):
 
 									embed = discord.Embed(title="Sell confirmation:", description=f"```r\nAre you sure you want to sell {count} {selected_name} ?\nReact \U00002705 or \U0000274e .\n\nEach item sells for : {price[selected_name]} coins.\nSelling {count} {selected_name} for total : {price[selected_name]*count} coins. ```", color=self.client.c)
 									embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
-									
+
 									confirm = await ctx.reply(embed=embed, mention_author=False)
 									await confirm.add_reaction("\U00002705")
 									await confirm.add_reaction("\U0000274e")
@@ -243,11 +242,11 @@ class Economy(commands.Cog):
 										elif w.emoji == "\U0000274e":
 											await confirm.delete()
 											await ctx.reply("Cancelled.", mention_author=False)
-											
+
 									except asyncio.TimeoutError:
 										await confirm.delete()
 										await ctx.reply("Timed out.", mention_author=False, delete_after=15)
-									
+
 									break
 								elif m.content.lower() == "cancel":
 									await hm.delete()
@@ -300,7 +299,7 @@ class Economy(commands.Cog):
 
 		for i, item in enumerate(sell):
 			_list.append(f"{nums[i]}\U0000fe0f\U000020e3 {item}, price: {sell[item]} coin(s) each")
-		
+
 		author_id = ctx.author.id
 
 		coins = await self.client.pg_con.fetchrow("SELECT coins FROM eco WHERE user_id = $1", author_id)
@@ -313,7 +312,11 @@ class Economy(commands.Cog):
 			return msg.author == ctx.author and msg.channel in [page1.channel, hw.channel]
 
 		def check_confirm(reaction, user):
-			return user == ctx.author and str(reaction.emoji) in ["\U00002705", "\U0000274e"] and reaction.message == confirm
+			return (
+				user == ctx.author
+				and str(reaction.emoji) in {"\U00002705", "\U0000274e"}
+				and reaction.message == confirm
+			)
 
 		embed = discord.Embed(title="=: Shop :=", description="```c\nYour coins : {}\n\n{} ```".format(coins[0], "\n".join(_list)), color=self.client.c)
 		embed.set_author(name=ctx.author.name, icon_url=ctx.author.avatar_url)
@@ -367,7 +370,7 @@ class Economy(commands.Cog):
 											for i in inv[0]:
 												if i[0] == selected_name:
 													howm = int(i[1])
-													howm = howm + count
+													howm += count
 													inv[0][inv[0].index(i)][1] = str(howm)
 													break
 											else:
@@ -379,12 +382,12 @@ class Economy(commands.Cog):
 										elif c.emoji == "\U0000274e":
 											await confirm.delete()
 											await ctx.reply("Canceled.", mention_author=False)
-											
+
 									except asyncio.TimeoutError:
 										await confirm.delete()
 										await ctx.reply("Timed out.", mention_author=False, delete_after=15)
 
-									break 
+									break
 								else:
 									await d.reply("You don't have enough coins to buy that much. Try again.", mention_author=False, delete_after=5)
 
@@ -423,7 +426,7 @@ class Economy(commands.Cog):
 			coins = [0]
 		coins = coins[0]
 
-		if bet == None:
+		if bet is None:
 			bet = 1
 
 		if bet <= 0:
@@ -454,41 +457,40 @@ class Economy(commands.Cog):
 ╚═══════════╝
 			""", allowed_mentions=discord.AllowedMentions.none())
 			await asyncio.sleep(2)
-		if True:
-			for i in range(3):
-				for j in range(3):
-					c[i][j] = random.choice(["pair of boots", "cod", "tropical fish", "blowfish", "shark"])
+		for i in range(3):
+			for j in range(3):
+				c[i][j] = random.choice(["pair of boots", "cod", "tropical fish", "blowfish", "shark"])
 
-			prob = random.choices(["l", "pair of boots", "cod", "tropical fish", "blowfish", "shark"], weights=[725, 300, 100, 50, 20, 5])[0]
-			if prob == "l":
-				if c[1][0] == c[1][1] and c[1][0] == c[1][2]:
-					c[1][0], c[1][1] = 'cod', 'shark'
+		prob = random.choices(["l", "pair of boots", "cod", "tropical fish", "blowfish", "shark"], weights=[725, 300, 100, 50, 20, 5])[0]
+		if prob == "l":
+			if c[1][0] == c[1][1] and c[1][0] == c[1][2]:
+				c[1][0], c[1][1] = 'cod', 'shark'
 
-				w = 0
-				ann = "LOSES IT ALL"
-			elif prob == "pair of boots":
-				c[1][0] = c[1][1] = c[1][2] = prob
-				w = bet * 2
-				ann = f"WON {w} COINS"
-			elif prob == "cod":
-				c[1][0] = c[1][1] = c[1][2] = prob
-				w = bet * 5
-				ann = f"WON {w} COINS"
-			elif prob == "tropical fish":
-				c[1][0] = c[1][1] = c[1][2] = prob
-				w = bet * 10
-				ann = f"WON {w} COINS"
-			elif prob == "blowfish":
-				c[1][0] = c[1][1] = c[1][2] = prob
-				w = bet * 15
-				ann = f"WON {w} COINS"
-			elif prob == "shark":
-				c[1][0] = c[1][1] = c[1][2] = prob
-				w = bet * 50
-				ann = f"WON {w} COINS"
-			coins += w
-			await self.client.pg_con.execute("UPDATE eco SET coins = $1 WHERE user_id = $2", coins, ctx.author.id)
-			await m.edit(content=f"""╔═══════════╗
+			w = 0
+			ann = "LOSES IT ALL"
+		elif prob == "pair of boots":
+			c[1][0] = c[1][1] = c[1][2] = prob
+			w = bet * 2
+			ann = f"WON {w} COINS"
+		elif prob == "cod":
+			c[1][0] = c[1][1] = c[1][2] = prob
+			w = bet * 5
+			ann = f"WON {w} COINS"
+		elif prob == "tropical fish":
+			c[1][0] = c[1][1] = c[1][2] = prob
+			w = bet * 10
+			ann = f"WON {w} COINS"
+		elif prob == "blowfish":
+			c[1][0] = c[1][1] = c[1][2] = prob
+			w = bet * 15
+			ann = f"WON {w} COINS"
+		elif prob == "shark":
+			c[1][0] = c[1][1] = c[1][2] = prob
+			w = bet * 50
+			ann = f"WON {w} COINS"
+		coins += w
+		await self.client.pg_con.execute("UPDATE eco SET coins = $1 WHERE user_id = $2", coins, ctx.author.id)
+		await m.edit(content=f"""╔═══════════╗
  :   {e[c[0][0]]}  │  {e[c[0][1]]}  │  {e[c[0][2]]}  :
 ╠═══════════╣
  **:   {e[c[1][0]]}  │  {e[c[1][1]]}  │  {e[c[1][2]]}  :  \U00002b05\U0000fe0f <<<**

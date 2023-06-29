@@ -74,8 +74,8 @@ class Events(commands.Cog):
 		mcontent = message.content
 
 		afks = await self.bot.db.fetch('SELECT * FROM afk')
-		set_afk = set([record['user_id'] for record in afks])
-		set_mention = set([mentioned.id for mentioned in message.mentions])
+		set_afk = {record['user_id'] for record in afks}
+		set_mention = {mentioned.id for mentioned in message.mentions}
 
 		if mauthor.id in set_afk:
 			for afk in afks:
@@ -87,10 +87,9 @@ class Events(commands.Cog):
 				await self.bot.db.execute('DELETE FROM afk WHERE user_id = $1', mauthor.id)
 				await message.reply(f"Welcome back {mauthor.mention}! You have been AFK for {humanize.naturaldelta(delta)}")
 				set_afk.discard(mauthor.id)
-		
+
 		if set_mention and not mauthor.bot:
-			intersect = set_afk.intersection(set_mention)
-			if intersect:
+			if intersect := set_afk.intersection(set_mention):
 				for mentioned_id in intersect:
 					for afk in afks:
 						if mentioned_id == afk['user_id']:
@@ -100,20 +99,25 @@ class Events(commands.Cog):
 					await message.reply(f'Sorry {mauthor.mention}, {mentioned} is currently AFK for : {reason}', allowed_mentions=discord.AllowedMentions.none())
 
 		if self.bot.user.mentioned_in(message):
-			if (mcontent == '<@!779783517613588520>' or mcontent == '<@779783517613588520>') and not mauthor.bot:
+			if (
+				mcontent in ['<@!779783517613588520>', '<@779783517613588520>']
+				and not mauthor.bot
+			):
 				await message.reply(f"Hello {mauthor.mention} \U0001f44b, my prefix is `j;`")
 
 		# @everyone prevention (on test guilds)
 		if mguild and mguild.id in [750901194104504391, 776385025552941077] and not mauthor.bot:
 			if mauthor.id not in self.bot.everyone:
 				self.bot.everyone[mauthor.id] = 0
-			if any([word in mcontent for word in MUTED_WORDS]):
+			if any(word in mcontent for word in MUTED_WORDS):
 				self.bot.everyone[mauthor.id] += 1
 				if self.bot.everyone[mauthor.id] == 1:
 					await asyncio.sleep(300)
 					self.bot.everyone[mauthor.id] = 0
-			
-			if self.bot.everyone[mauthor.id] == 3 and any([word in mcontent for word in MUTED_WORDS]):
+
+			if self.bot.everyone[mauthor.id] == 3 and any(
+				word in mcontent for word in MUTED_WORDS
+			):
 				print(f"muted {str(mauthor)}")
 				muted_role = discord.utils.get(mguild.roles, name='Muted')
 				roles = mauthor.roles[1:]
@@ -222,7 +226,10 @@ class Events(commands.Cog):
 		Created at: {discord.utils.format_dt(guild.created_at, 'F')}
 		""", color=self.bot.c)
 		embed.set_thumbnail(url=guild.icon.url if guild.icon else None)
-		embed.set_footer(text=f"Now in {len(self.bot.guilds)} servers with {sum([g.member_count for g in self.bot.guilds])} members.", icon_url=self.bot.user.avatar.url)
+		embed.set_footer(
+			text=f"Now in {len(self.bot.guilds)} servers with {sum(g.member_count for g in self.bot.guilds)} members.",
+			icon_url=self.bot.user.avatar.url,
+		)
 		await self.bot.get_channel(779893084791635969).send(embed=embed)
 
 		print(f"\nLeft `{guild.name}` with {guild.member_count} members.\n")
@@ -236,19 +243,18 @@ class Events(commands.Cog):
 		test = {n.lower():n for n in keys}
 
 		for emoji in search:
-			guess = [test[r] for r in get_close_matches(emoji, test)]
-			if guess:
+			if guess := [test[r] for r in get_close_matches(emoji, test)]:
 				guesses.append(str(emoji_list[guess[0]]))
 			else:
 				guesses.append("")
 
-		if len(guesses) > 0 and guesses[0]:
+		if guesses and guesses[0]:
 			current = await self.bot.db.fetchrow("SELECT toggle FROM emoji WHERE user_id = $1 AND guild_id = $2", message.author.id, message.guild.id)
 			if current and current[0]:
 				coded = re.sub(r"((?=;;).+?(?=;;|$|\s))", "<J3yY[b0T>", message.content)
 				if "<J3yY[b0T>" in coded:
-					for i in range(len(guesses)):
-						coded = coded.replace("<J3yY[b0T>", guesses[i], 1)
+					for guess_ in guesses:
+						coded = coded.replace("<J3yY[b0T>", guess_, 1)
 				coded = coded.replace("<J3yY[b0T>", "")
 
 				permissions = dict(message.channel.permissions_for(message.guild.me))
@@ -257,7 +263,7 @@ class Events(commands.Cog):
 
 				if permissions['manage_webhooks']:
 					if dict(message.guild.default_role.permissions)['external_emojis']:
-						if overrides == None or overrides == True:
+						if overrides is None or overrides == True:
 							webhooks = await message.channel.webhooks()
 							webhook = discord.utils.get(webhooks, name="Jeyy Bot Emoji")
 							if webhook is None:
@@ -280,11 +286,10 @@ class Events(commands.Cog):
 						embed = discord.Embed(title="Uh oh", description="It seems like @everyone role doesn't have permission to use `external_emojis` on this **server**. Please enable it to use external emojis.", color=self.bot.c)
 						embed.set_image(url="https://cdn.discordapp.com/attachments/781487758308671520/820893933646249984/unknown.png")
 						await message.channel.send(embed=embed)
+				elif message.reference:
+					await message.reference.resolved.reply(coded, allowed_mentions=discord.AllowedMentions.all() if message.mentions else discord.AllowedMentions.none())
 				else:
-					if message.reference:
-						await message.reference.resolved.reply(coded, allowed_mentions=discord.AllowedMentions.all() if message.mentions else discord.AllowedMentions.none())
-					else:
-						await message.channel.send(coded, allowed_mentions=discord.AllowedMentions.none())
+					await message.channel.send(coded, allowed_mentions=discord.AllowedMentions.none())
 
 	@commands.Cog.listener()
 	async def on_reply(self, message):

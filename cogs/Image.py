@@ -26,7 +26,7 @@ class IMAGE(commands.Cog, name="Image"):
 
 	@commands.Cog.listener()
 	async def on_ready(self):
-		print(f"Image Cog Loaded")
+		print("Image Cog Loaded")
 
 	async def cache_check(self, ctx, func, buf, *args):
 		cmd = ctx.command.qualified_name
@@ -34,8 +34,7 @@ class IMAGE(commands.Cog, name="Image"):
 
 		self.bot.image_cache.setdefault(cmd, OrderedDict())
 
-		result = self.bot.image_cache[cmd].get(img_data)
-		if result:
+		if result := self.bot.image_cache[cmd].get(img_data):
 			result.seek(0)
 			return result
 
@@ -1029,13 +1028,13 @@ class IMAGE(commands.Cog, name="Image"):
 			if not bonked:
 				dataD = await ctx.to_image()
 				dataR = None
-			elif bonked and not bonker:
+			elif not bonker:
 				dataD = await ctx.to_image(bonked)
 				dataR = None
-			elif bonked and bonker:
+			else:
 				dataD = await ctx.to_image(bonked)
 				dataR = await ctx.to_image(bonker)
-			
+
 			buf = await nohorni_func(dataD, dataR)
 			await ctx.reply(file=discord.File(buf, "hornijail.gif"), mention_author=False)
 
@@ -1144,26 +1143,26 @@ class IMAGE(commands.Cog, name="Image"):
 							arg = args[0]
 							arg = await commands.MessageConverter().convert(ctx, arg)
 							args = [arg.clean_content]
-							auth = "- " + arg.author.display_name
+							auth = f"- {arg.author.display_name}"
 						except:
-							auth = "- " + ctx.author.display_name
+							auth = f"- {ctx.author.display_name}"
 					buf, l = await types_gif(args, auth)
 
-					if buf != "":
-						await ctx.reply(file=discord.File(buf, "types.gif"), mention_author=False)
-					else:
+					if buf == "":
 						await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
 						ctx.command.reset_cooldown(ctx)
 
+					else:
+						await ctx.reply(file=discord.File(buf, "types.gif"), mention_author=False)
 				else:
 					if len(args) == 1:
 						try:
 							arg = args[0]
 							arg = await commands.MessageConverter().convert(ctx, arg)
 							args = [arg.clean_content]
-							auth = "- " + arg.author.display_name
+							auth = f"- {arg.author.display_name}"
 						except:
-							auth = "- " + ctx.author.display_name
+							auth = f"- {ctx.author.display_name}"
 
 					buf, l = await types(args, auth)
 
@@ -1172,42 +1171,41 @@ class IMAGE(commands.Cog, name="Image"):
 					else:
 						await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
 						ctx.command.reset_cooldown(ctx)
-			
-			else:
-				if args[-1] == "gif":
-					args.pop()
-					if len(args) == 1:
-						try:
-							arg = args[0]
-							arg = await commands.MessageConverter().convert(ctx, arg)
-							args = [arg.clean_content]
-						except:
-							pass
 
-					buf, l = await types_gif(args, "")
+			elif args[-1] == "gif":
+				args.pop()
+				if len(args) == 1:
+					try:
+						arg = args[0]
+						arg = await commands.MessageConverter().convert(ctx, arg)
+						args = [arg.clean_content]
+					except:
+						pass
 
-					if buf != "":
-						await ctx.reply(file=discord.File(buf, "types.gif"), mention_author=False)
-					else:
-						await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
-						ctx.command.reset_cooldown(ctx)
+				buf, l = await types_gif(args, "")
 
+				if buf != "":
+					await ctx.reply(file=discord.File(buf, "types.gif"), mention_author=False)
 				else:
-					if len(args) == 1:
-						try:
-							arg = args[0]
-							arg = await commands.MessageConverter().convert(ctx, arg)
-							args = [arg.clean_content]
-						except:
-							pass
+					await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
+					ctx.command.reset_cooldown(ctx)
 
-					buf, l = await types(args, "")
+			else:
+				if len(args) == 1:
+					try:
+						arg = args[0]
+						arg = await commands.MessageConverter().convert(ctx, arg)
+						args = [arg.clean_content]
+					except:
+						pass
 
-					if buf != "":
-						await ctx.reply(file=discord.File(buf, "types.png"), mention_author=False)
-					else:
-						await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
-						ctx.command.reset_cooldown(ctx)
+				buf, l = await types(args, "")
+
+				if buf != "":
+					await ctx.reply(file=discord.File(buf, "types.png"), mention_author=False)
+				else:
+					await ctx.reply(f"Your text reached the limit of `150` characters: `{l}`", mention_author=False)
+					ctx.command.reset_cooldown(ctx)
 
 	@commands.command(cooldown_after_parsing=True, aliases=["ball"], usage="<User|Member|Emoji|URL>")
 	@commands.cooldown(1, 10, commands.BucketType.user)

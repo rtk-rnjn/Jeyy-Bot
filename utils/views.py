@@ -300,7 +300,7 @@ class BuildView(discord.ui.View):
 		self.render_button.callback = self.render_callback
 		self.add_item(self.render_button)
 
-		if any([lever in self.build_search['build'] for lever in ['e', '#']]):
+		if any(lever in self.build_search['build'] for lever in ['e', '#']):
 			self.gif_button = discord.ui.Button(label="Render as gif", style=discord.ButtonStyle.primary)
 			self.gif_button.callback = self.gif_callback
 			self.add_item(self.gif_button)
@@ -314,7 +314,7 @@ class BuildView(discord.ui.View):
 			self.star_button = discord.ui.Button(label=f"Build star on cooldown.. {left}", disabled=True, emoji="<:nostar:596577059673866260>", style=discord.ButtonStyle.grey)
 		else:
 			self.star_button = discord.ui.Button(label="Star this build", emoji="\U00002b50", style=discord.ButtonStyle.grey)
-		
+
 		self.star_button.callback = self.star_callback
 		self.add_item(self.star_button)
 
@@ -325,16 +325,13 @@ class BuildView(discord.ui.View):
 
 	async def cooldown_left(self):
 		triggered = await self.ctx.bot.db.fetchval("SELECT triggered FROM star_cooldown WHERE user_id = $1", self.ctx.author.id)
-		if triggered:
-			delta = dt.datetime.now() - triggered
-			if delta.total_seconds() <= 3600:
-				left = humanize.precisedelta(dt.timedelta(hours=1) - delta)
-				return left
-			else:
-				await self.ctx.bot.db.execute("DELETE FROM star_cooldown WHERE user_id = $1", self.ctx.author.id)
-				return None
-		else:
+		if not triggered:
 			return None
+		delta = dt.datetime.now() - triggered
+		if delta.total_seconds() <= 3600:
+			return humanize.precisedelta(dt.timedelta(hours=1) - delta)
+		await self.ctx.bot.db.execute("DELETE FROM star_cooldown WHERE user_id = $1", self.ctx.author.id)
+		return None
 
 	async def interaction_check(self, interaction):
 		if interaction.user != self.ctx.author:
@@ -393,7 +390,7 @@ class BuildView(discord.ui.View):
 			await self.ctx.bot.db.execute("UPDATE builds SET stars = stars + 1 WHERE build_name = $1", self.build_search['build_name'])
 			await self.ctx.bot.db.execute("INSERT INTO star_cooldown (user_id, triggered) VALUES ($1, $2)", self.ctx.author.id, dt.datetime.now())
 			await interaction.response.send_message(f'You starred \"{self.build_search["build_name"]}\" \U00002b50 !', ephemeral=True)
-			self.star_button.label = f"Build star on cooldown.. 1 hour"
+			self.star_button.label = "Build star on cooldown.. 1 hour"
 
 		self.star_button.emoji = "<:nostar:596577059673866260>"
 		self.star_button.disabled = True
@@ -509,10 +506,10 @@ class BottleButton(discord.ui.Button):
 					continue
 				if isinstance(btn, BottleButton) and btn != self:
 					try:
-						if btn.bottle.is_full() or self.bottle.liquids[-1].color != btn.bottle.liquids[-1].color:
-							btn.disabled = True
-						else:
-							btn.disabled = False
+						btn.disabled = bool(
+							btn.bottle.is_full()
+							or self.bottle.liquids[-1].color != btn.bottle.liquids[-1].color
+						)
 					except IndexError:
 						btn.disabled = False
 			self.view.state = 1
@@ -526,13 +523,13 @@ class BottleButton(discord.ui.Button):
 					btn.disabled = True
 					continue
 				if isinstance(btn, BottleButton):
-					btn.disabled = True if btn.bottle.is_empty() else False
+					btn.disabled = bool(btn.bottle.is_empty())
 					if btn == self.view.selected:
 						btn.style = discord.ButtonStyle.secondary
 					if btn.bottle.is_completed():
 						btn.style = discord.ButtonStyle.success
 						btn.disabled = True
-			
+
 			self.view.state = 0
 			embed = self.view.msg.embeds[0]
 			img_buf = await self.view.draw_image()
@@ -545,7 +542,7 @@ class BottleButton(discord.ui.Button):
 				for btn in self.view.children:
 					if btn.custom_id != 'exit_btn':
 						btn.disabled = True
-				
+
 				highest_level = await self.view.ctx.db.fetchval('SELECT level FROM pour_level WHERE user_id = $1', self.view.ctx.author.id)
 				if highest_level == self.view.level:
 					await self.view.ctx.db.execute('UPDATE pour_level SET level = level + 1 WHERE user_id = $1', self.view.ctx.author.id)
@@ -568,10 +565,18 @@ class PourView(discord.ui.View):
 		self.selected = None
 		self.msg = None
 		self.next_btn = None
-		
+
 		for i, bottle_data in enumerate(levels[self.level], start=1):
 			bottle = Bottle(i, [Liquid(color) for color in bottle_data])
-			self.add_item(BottleButton(bottle, label=i, style=discord.ButtonStyle.secondary, row=1+(i-1)//5, disabled=True if bottle.is_empty() else False))
+			self.add_item(
+				BottleButton(
+					bottle,
+					label=i,
+					style=discord.ButtonStyle.secondary,
+					row=1 + (i - 1) // 5,
+					disabled=bool(bottle.is_empty()),
+				)
+			)
 
 	@executor_function
 	def draw_image(self):
@@ -594,15 +599,15 @@ class PourView(discord.ui.View):
 		return buf
 
 	def win_check(self):
-		checks = []
+		checks = [
+			(btn.bottle.is_completed() or btn.bottle.is_empty())
+			for btn in self.children
+			if isinstance(btn, BottleButton)
+		]
 		for btn in self.children:
 			if isinstance(btn, BottleButton):
 				checks.append(btn.bottle.is_completed() or btn.bottle.is_empty())
 
-		for btn in self.children:
-			if isinstance(btn, BottleButton):
-				checks.append(btn.bottle.is_completed() or btn.bottle.is_empty())
-		
 		return all(checks)
 
 	async def interaction_check(self, interaction):
@@ -640,8 +645,16 @@ class PourView(discord.ui.View):
 
 		for i, bottle_data in enumerate(levels[self.level], start=1):
 			bottle = Bottle(i, [Liquid(color) for color in bottle_data])
-			self.add_item(BottleButton(bottle, label=i, style=discord.ButtonStyle.secondary, row=1+(i-1)//5, disabled=True if bottle.is_empty() else False))
-		
+			self.add_item(
+				BottleButton(
+					bottle,
+					label=i,
+					style=discord.ButtonStyle.secondary,
+					row=1 + (i - 1) // 5,
+					disabled=bool(bottle.is_empty()),
+				)
+			)
+
 		embed = self.msg.embeds[0]
 		img_buf = await self.draw_image()
 
@@ -652,19 +665,20 @@ class PourView(discord.ui.View):
 
 	@discord.ui.button(label='Cancel', style=discord.ButtonStyle.primary, custom_id='cancel_btn', disabled=True, row=0)
 	async def cancel_button(self, interaction: discord.Interaction, button: discord.Button):
-		if self.state == 1:
-			for btn in self.children:
-				if isinstance(btn, BottleButton):
-					btn.disabled = True if btn.bottle.is_empty() else False
-					if btn == self.selected:
-						btn.style = discord.ButtonStyle.secondary
-					if btn.bottle.is_completed():
-						btn.disabled = True
+		if self.state != 1:
+			return
+		for btn in self.children:
+			if isinstance(btn, BottleButton):
+				btn.disabled = bool(btn.bottle.is_empty())
+				if btn == self.selected:
+					btn.style = discord.ButtonStyle.secondary
+				if btn.bottle.is_completed():
+					btn.disabled = True
 
-			button.disabled = True
-			self.selected = None
-			self.state = 0
-			await interaction.response.edit_message(view=self)
+		button.disabled = True
+		self.selected = None
+		self.state = 0
+		await interaction.response.edit_message(view=self)
 
 	async def next_button_callback(self, interaction):
 		self.state = 0
@@ -676,44 +690,52 @@ class PourView(discord.ui.View):
 			elif btn.custom_id == 'cancel_btn':
 				btn.disabled = True
 				continue
-			elif btn.custom_id == 'reset_btn' or btn.custom_id == 'exit_btn':
+			elif btn.custom_id in ['reset_btn', 'exit_btn']:
 				btn.disabled = False
 				continue
 
 		for i, bottle_data in enumerate(levels[self.level], start=1):
 			bottle = Bottle(i, [Liquid(color) for color in bottle_data])
-			self.add_item(BottleButton(bottle, label=i, style=discord.ButtonStyle.secondary, row=1+(i-1)//5, disabled=True if bottle.is_empty() else False))
+			self.add_item(
+				BottleButton(
+					bottle,
+					label=i,
+					style=discord.ButtonStyle.secondary,
+					row=1 + (i - 1) // 5,
+					disabled=bool(bottle.is_empty()),
+				)
+			)
 
 		embed = self.msg.embeds[0]
 		embed.description = f'Level : {self.level}'
 		img_buf = await self.draw_image()
 		img_file = discord.File(img_buf, 'pour_game.png')
-		
+
 		embed.set_image(url='attachment://pour_game.png')
 		await interaction.response.edit_message(embed=embed, attachments=[img_file], view=self)
 
 class BlockSelector(discord.ui.Select):
 	def __init__(self, selector_pos):
 		options = [
-			discord.SelectOption(label=f'Grass Block', value='1', default=True),
-			discord.SelectOption(label=f'Water', value='2'),
-			discord.SelectOption(label=f'Sand Block', value='3'),
-			discord.SelectOption(label=f'Stone Block', value='4'),
-			discord.SelectOption(label=f'Wood Planks', value='5'),
-			discord.SelectOption(label=f'Glass Block', value='6'),
-			discord.SelectOption(label=f'Redstone Block', value='7'),
-			discord.SelectOption(label=f'Brick Block', value='9'),
-			discord.SelectOption(label=f'Iron Block', value='8'),
-			discord.SelectOption(label=f'Gold Block', value='g'),
-			discord.SelectOption(label=f'Diamond Block', value='d'),
-			discord.SelectOption(label=f'Purple Block', value='p'),
-			discord.SelectOption(label=f'Coal Block', value='c'),
-			discord.SelectOption(label=f'Leaf Block', value='l'),
-			discord.SelectOption(label=f'Wooden Log', value='o'),
-			discord.SelectOption(label=f'Hay Bale', value='h'),
-			discord.SelectOption(label=f'Poppy', value='y'),
-			discord.SelectOption(label=f'Cake', value='k'),
-			discord.SelectOption(label=f'Lava', value='v'),
+			discord.SelectOption(label='Grass Block', value='1', default=True),
+			discord.SelectOption(label='Water', value='2'),
+			discord.SelectOption(label='Sand Block', value='3'),
+			discord.SelectOption(label='Stone Block', value='4'),
+			discord.SelectOption(label='Wood Planks', value='5'),
+			discord.SelectOption(label='Glass Block', value='6'),
+			discord.SelectOption(label='Redstone Block', value='7'),
+			discord.SelectOption(label='Brick Block', value='9'),
+			discord.SelectOption(label='Iron Block', value='8'),
+			discord.SelectOption(label='Gold Block', value='g'),
+			discord.SelectOption(label='Diamond Block', value='d'),
+			discord.SelectOption(label='Purple Block', value='p'),
+			discord.SelectOption(label='Coal Block', value='c'),
+			discord.SelectOption(label='Leaf Block', value='l'),
+			discord.SelectOption(label='Wooden Log', value='o'),
+			discord.SelectOption(label='Hay Bale', value='h'),
+			discord.SelectOption(label='Poppy', value='y'),
+			discord.SelectOption(label='Cake', value='k'),
+			discord.SelectOption(label='Lava', value='v'),
 		]
 		super().__init__(options=options, row=0)
 
@@ -1038,11 +1060,10 @@ class EmbedBuilder(discord.ui.View):
 				self.stop()
 				return
 
-			if len(message.content) > 256:
-				await interaction.response.send_message("Embed title can not be more than 256 characters long!")
-				continue
-			else:
+			if len(message.content) <= 256:
 				break
+			await interaction.response.send_message("Embed title can not be more than 256 characters long!")
+			continue
 
 class AnsiMaker(discord.ui.View):
 	def __init__(self, ctx, text):
@@ -1073,8 +1094,7 @@ class AnsiMaker(discord.ui.View):
 		fmt = state['format']
 
 		if fmt['bold'] and fmt['underline']:
-			ansis.append('1')
-			ansis.append('4')
+			ansis.extend(('1', '4'))
 		elif fmt['bold']:
 			ansis.append('1')
 		elif fmt['underline']:
@@ -1351,13 +1371,9 @@ class SounderView(discord.ui.View):
 		self.sounder.count_sound = 0
 		self.sounder.position = 0
 		self.sounder.sounds = []
-		
-		for btn in self.children:
-			if btn.label in ['Finished', 'Clear']:
-				btn.disabled = True
-			else:
-				btn.disabled = False
 
+		for btn in self.children:
+			btn.disabled = btn.label in ['Finished', 'Clear']
 		await interaction.response.edit_message(content=', '.join(self.sounder.sounds), view=self)
 		
 	@discord.ui.button(label='Delete', style=discord.ButtonStyle.danger)
@@ -1419,8 +1435,7 @@ class PollView(discord.ui.View):
 		self.add_item(ping_btn)
 
 	async def interaction_check(self, interaction):
-		retry_after = self.cd.update_rate_limit(interaction)
-		if retry_after:
+		if retry_after := self.cd.update_rate_limit(interaction):
 			await interaction.response.send_message(f'Slow down! You\'re on cooldown. Retry after {int(retry_after)}s', ephemeral=True)
 			return False
 		return True
@@ -1601,25 +1616,19 @@ class CariMenu(discord.ui.Select):
 		table_1 = soup.find('div', attrs={'id': 'home'})
 		table_1_title = table_1.find('h3').get_text()
 		table_1_rows = table_1.find_all('tr')
-		
+
 		table_1_data = [[th.get_text() for th in table_1.find_all('th')]]
 		for row in table_1_rows:
-			row_data = []
-			for cell in row.find_all('td'):
-				row_data.append(cell.get_text())
-			if row_data:
+			if row_data := [cell.get_text() for cell in row.find_all('td')]:
 				table_1_data.append(row_data)
 
 		table_2 = soup.find('div', attrs={'id': 'menu1'})
 		table_2_title = table_2.find('h3').get_text()
 		table_2_rows = table_2.find_all('tr')
-		
+
 		table_2_data = [[th.get_text() for th in table_2.find_all('th')]]
 		for row in table_2_rows:
-			row_data = []
-			for cell in row.find_all('td'):
-				row_data.append(cell.get_text())
-			if row_data:
+			if row_data := [cell.get_text() for cell in row.find_all('td')]:
 				table_2_data.append(row_data)
 
 		return biodata_table, [

@@ -58,7 +58,7 @@ def osc(iterable, double=False):
 	for element in iterable:
 		yield element
 		saved.append(element)
-	
+
 	if double:
 		for element in iterable[::-1]:
 			yield element
@@ -67,19 +67,15 @@ def osc(iterable, double=False):
 		for element in iterable[-2:0:-1]:
 			yield element
 			saved.append(element)
-			
+
 	while saved:
-		for element in saved:
-			yield element
+		yield from saved
 
 def chunk(lst, per=10, combine=False):
 
 	result = [lst[i:i+per] for i in range(0, len(lst), per)]
 
-	if not combine:
-		return result
-
-	return ['\n'.join(page) for page in result]
+	return result if not combine else ['\n'.join(page) for page in result]
 
 def randlistsum(n, max):
 	arr = [0] * n
@@ -133,22 +129,18 @@ def recursive_parse(l):
 	new = []
 	for el in multiplied:
 		if isinstance(el, list):
-			for val in el:
-				new.append(val)
+			new.extend(iter(el))
 		else:
 			new.append(el)
 
-	if any([isinstance(el, list) for el in new]):
-		return recursive_parse(new)
-	else:
-		return new
+	return recursive_parse(new) if any(isinstance(el, list) for el in new) else new
 
 def parse_multiplication(blocks):
 
 	l = parse_brackets(blocks)
 
 	sudo_parsed = recursive_parse(l)
-	if any(['x' in el for el in sudo_parsed]):
+	if any('x' in el for el in sudo_parsed):
 		return ''.join(recursive_parse(sudo_parsed))
 	return ''.join(sudo_parsed)
 
@@ -202,8 +194,7 @@ def generate_ansi(
 				bg_color = '47'
 
 	if bold and underline:
-		ansis.append('1')
-		ansis.append('4')
+		ansis.extend(('1', '4'))
 	elif bold:
 		ansis.append('1')
 	elif underline:
@@ -215,11 +206,10 @@ def generate_ansi(
 		ansis.append(bg_color)
 
 	if codeblock:
-		if any([bold, underline, text_color, bg_color]):
-			code = f"\u001b[{';'.join(ansis)}m"
-			return f'```ansi\n{code}{text}\u001b[0m\n```'
-		else:
+		if not any([bold, underline, text_color, bg_color]):
 			return f'```ansi\n{text}\n```'
+		code = f"\u001b[{';'.join(ansis)}m"
+		return f'```ansi\n{code}{text}\u001b[0m\n```'
 	else:
 		code = f"\u001b[{';'.join(ansis)}m"
 		return f'{code}{text}\u001b'

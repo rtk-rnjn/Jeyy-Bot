@@ -41,7 +41,7 @@ class Bots(commands.Cog, name='Bot'):
 	@commands.Cog.listener()
 	async def on_ready(self):
 		print(f"Logged in as {self.bot.user}")
-		print(f"Bot Cog Loaded")
+		print("Bot Cog Loaded")
 		channel = await self.bot.fetch_channel(779892741696913438)
 		await channel.send(f"Logged in as {self.bot.user}")
 
@@ -142,7 +142,10 @@ class Bots(commands.Cog, name='Bot'):
 		"""See bot's uptime"""
 		delta_uptime = dt.datetime.now() - self.bot.launch_time
 		time = humanize.precisedelta(dt.timedelta(seconds=round(delta_uptime.total_seconds())))
-		await ctx.reply(f"I've been up for {time}\n*Last load from {f'<t:{int(self.bot.launch_time.timestamp())}:f>'}*", mention_author=False)
+		await ctx.reply(
+			f"I've been up for {time}\n*Last load from <t:{int(self.bot.launch_time.timestamp())}:f>*",
+			mention_author=False,
+		)
 
 	@commands.group(invoke_without_command=True)
 	@commands.cooldown(1, 3, commands.BucketType.user)
@@ -170,23 +173,18 @@ class Bots(commands.Cog, name='Bot'):
 			await ctx.reply("Missing the emoji you want to search.", mention_author=False)
 			return
 
-		last_emojis = []
-		txt = []
-
-		for emoji in self.bot.emojis:
-			if emoji.guild.id == 332406449051402250:
-				pass
-			else:
-				last_emojis.append(emoji)
-
+		last_emojis = [
+			emoji for emoji in self.bot.emojis if emoji.guild.id != 332406449051402250
+		]
 		emoji_list = {emoji.name: emoji for emoji in last_emojis}
 		keys = list(emoji_list)
 		test = {n.lower():n for n in keys}
 
-		guess = [test[r] for r in get_close_matches(search, test, 15, 0.6)]
-		if guess:
-			for i, emoji in enumerate(guess):
-				txt.append(f"`{i+1}.` {emoji_list[emoji]} `;;{emoji_list[emoji].name}`")
+		if guess := [test[r] for r in get_close_matches(search, test, 15, 0.6)]:
+			txt = [
+				f"`{i + 1}.` {emoji_list[emoji]} `;;{emoji_list[emoji].name}`"
+				for i, emoji in enumerate(guess)
+			]
 			embed = discord.Embed(title=f"Emoji close matches result for **\"{search}\"**", description="\n".join(txt), color=self.bot.c)
 
 			await ctx.reply(embed=embed, mention_author=False)
@@ -212,7 +210,11 @@ class Bots(commands.Cog, name='Bot'):
 		embed.add_field(name="Developer", value=f"```\n{str(info.owner)}```", inline=False)
 		embed.add_field(name="Library", value=f"```\ndiscord.py {discord.__version__}```", inline=True)
 		embed.add_field(name="Total servers", value=f"```\n{len(self.bot.guilds)}```", inline=True)
-		embed.add_field(name="Total members", value=f"```\n{sum([g.member_count for g in self.bot.guilds])}```", inline=True)
+		embed.add_field(
+			name="Total members",
+			value=f"```\n{sum(g.member_count for g in self.bot.guilds)}```",
+			inline=True,
+		)
 		embed.set_thumbnail(url=self.bot.user.avatar.url)
 
 		bot_button = discord.ui.Button(label="Invite Jeyy Bot", url='https://discord.com/oauth2/authorize?client_id=779783517613588520&permissions=1644959366391&scope=applications.commands%20bot')
@@ -221,7 +223,7 @@ class Bots(commands.Cog, name='Bot'):
 		view = discord.ui.View()
 		view.add_item(bot_button)
 		view.add_item(support_button)
-		
+
 		await ctx.reply(embed=embed, view=view, mention_author=False)
 
 	@commands.command(aliases=['src'])
@@ -235,7 +237,7 @@ class Bots(commands.Cog, name='Bot'):
 		# 	async with session.get(url) as response:
 		# 		buf = BytesIO(await response.read())
 		# 		await ctx.reply("||ish closed source :^||", file=discord.File(buf, f"error_code_{num}.jpg", spoiler=True), mention_author=False, delete_after=10)
-		
+
 		base = 'https://github.com/JeyyGit/Jeyy-Bot'
 		branch = 'main'
 
@@ -255,7 +257,12 @@ class Bots(commands.Cog, name='Bot'):
 			if not cmd:
 				return await ctx.reply(f'No command called "{command}" found.')
 			if cmd.cog.__class__.__name__ == 'Jishaku':
-				view.add_item(discord.ui.Button(label=f'Source code for Jishaku commands', url='https://github.com/Gorialis/jishaku'))
+				view.add_item(
+					discord.ui.Button(
+						label='Source code for Jishaku commands',
+						url='https://github.com/Gorialis/jishaku',
+					)
+				)
 				return await ctx.reply('<https://github.com/Gorialis/jishaku>', view=view)
 			elif not cmd.cog:
 				module = 'Jeyy%20Bot'
@@ -264,7 +271,7 @@ class Bots(commands.Cog, name='Bot'):
 			lines, line_no = inspect.getsourcelines(cmd.callback)
 
 		link = f'{base}/blob/{branch}/{module}.py#L{line_no}-L{line_no+len(lines)-1}'
-		
+
 		view.add_item(discord.ui.Button(label=f'Source code for {command}', url=link))
 		await ctx.reply(f'A \U00002b50 is very much appreciated \U0000270c\n\n<{link}>', view=view)
 
@@ -306,7 +313,16 @@ class Bots(commands.Cog, name='Bot'):
 				'right': "\U000027a1\U0000fe0f"}
 
 		def check_react(reaction, user):
-			return user == ctx.author and str(reaction.emoji) in ["\U00002b05\U0000fe0f", "\U000023f9\U0000fe0f", "\U000027a1\U0000fe0f"] and reaction.message == sent
+			return (
+				user == ctx.author
+				and str(reaction.emoji)
+				in {
+					"\U00002b05\U0000fe0f",
+					"\U000023f9\U0000fe0f",
+					"\U000027a1\U0000fe0f",
+				}
+				and reaction.message == sent
+			)
 
 		c = 0
 		page = 1
@@ -434,15 +450,20 @@ class Bots(commands.Cog, name='Bot'):
 			info = psutil.virtual_memory()
 			cb = f'```py\nTotal     : {humanize.naturalsize(info[0])}\nAvailable : {humanize.naturalsize(info[1])}\nUsed      : {humanize.naturalsize(info[3])}\nPercent   : {["", "⚠️ "][info[2]>80]}{info[2]}% {["", "⚠️"][info[2]>80]}```'
 
-			embed = discord.Embed(url="https://api.jeyy.xyz", title="Jeyy API", description="Public API with wide range of image manipulation endpoints"+cb, color=self.bot.c)
-			
+			embed = discord.Embed(
+				url="https://api.jeyy.xyz",
+				title="Jeyy API",
+				description=f"Public API with wide range of image manipulation endpoints{cb}",
+				color=self.bot.c,
+			)
+
 			embed.add_field(name="Status", value=['Offline <:status_offline:596576752013279242>', 'Online <:status_online:596576749790429200>'][r.status == 200])
 			if r.status == 200:
 				embed.add_field(name="Ping", value=f"{int((e-s)*1000)} ms :ping_pong:", inline=True)
 
 			view = SupportServerView()
 			return await ctx.reply(embed=embed, view=view, mention_author=False)
-		
+
 		async with ctx.typing():
 			s = time.perf_counter()
 			r = await self.bot.session.get(f'https://api.jeyy.xyz/image/{endpoint}', params={'image_url': ctx.author.display_avatar.url})
@@ -478,7 +499,9 @@ class Bots(commands.Cog, name='Bot'):
 		embeds = []
 		for page in chunks:
 			embed = discord.Embed(title=f"Jeyy API usages | {['Offline <:status_offline:596576752013279242>', 'Online <:status_online:596576749790429200>'][r.status == 200]}", url="https://api.jeyy.xyz", description=page, color=self.bot.c, timestamp=dt.datetime.now())
-			embed.set_footer(text=f'Total requests: {sum([endpoint["usage"] for endpoint in endpoints])}')
+			embed.set_footer(
+				text=f'Total requests: {sum(endpoint["usage"] for endpoint in endpoints)}'
+			)
 			embeds.append(embed)
 
 		await ctx.Paginator().send(embeds, reply=True)
